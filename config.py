@@ -39,6 +39,8 @@ GROUNDWATER_WELLS = {
 USDM_CURRENT_MAP_URL = "https://droughtmonitor.unl.edu/data/png/current/current_usdm.png"
 USDM_CURRENT_GEOJSON_URL = "https://droughtmonitor.unl.edu/data/json/usdm_current.json"
 
+POTOMAC_BASIN_GEOJSON_FILE = "data/boundaries/potomac_basin.geojson"
+
 POTOMAC_HUC8_GEOJSON_URL = (
     "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/FeatureServer/4/query"
     "?where=HUC8%20LIKE%20%27020700%25%27"

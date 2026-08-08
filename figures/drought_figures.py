@@ -169,48 +169,60 @@ def build_potomac_usdm_map_src(cache_date):
             info_ax.text(0.12, y - 0.006, label, fontsize=11.5, va="center")
             y -= 0.052
 
-        # Basin percentage table
+         # Basin percentage table
         table_rows = []
-        for dm_value in range(5):
+
+        nonzero_categories = [
+            dm_value
+            for dm_value, percent_value in basin_percentages.items()
+            if percent_value > 0.05
+        ]
+
+        if nonzero_categories:
+            max_category_to_show = min(max(nonzero_categories) + 1, 4)
+        else:
+            max_category_to_show = 0
+
+        for dm_value in range(max_category_to_show + 1):
             percent_value = basin_percentages.get(dm_value, 0.0)
 
-            if percent_value > 0.05:
-                if percent_value < 1.0:
-                    percent_text = f"{percent_value:.1f}%"
-                elif abs(percent_value - round(percent_value)) < 0.05:
-                    percent_text = f"{percent_value:.0f}%"
-                else:
-                    percent_text = f"{percent_value:.1f}%"
+            if abs(percent_value) < 0.05:
+                percent_text = "0%"
+            elif percent_value < 1.0:
+                percent_text = f"{percent_value:.1f}%"
+            elif abs(percent_value - round(percent_value)) < 0.05:
+                percent_text = f"{percent_value:.0f}%"
+            else:
+                percent_text = f"{percent_value:.1f}%"
 
-                table_rows.append([f"D{dm_value}", percent_text])
+            table_rows.append([f"D{dm_value}", percent_text])
 
-        if table_rows:
-            table = info_ax.table(
-                cellText=table_rows,
-                colLabels=["Category", "Basin"],
-                cellLoc="center",
-                loc="center",
-                bbox=[0.00, 0.29, 1.00, 0.22]
-            )
-
-            table.auto_set_font_size(False)
-            table.set_fontsize(10.5)
-
-            for (row, col), cell in table.get_celld().items():
-                cell.set_edgecolor("#333333")
-                cell.set_linewidth(0.8)
-
-                if row == 0:
-                    cell.set_facecolor("#D9D9D9")
-                    cell.get_text().set_fontweight("bold")
-                elif col == 0:
-                    dm_text = cell.get_text().get_text()
-
-                    try:
-                        dm_int = int(dm_text.replace("D", ""))
-                        cell.set_facecolor(color_palette.get(dm_int, "white"))
-                    except Exception:
-                        pass
+        table = info_ax.table(
+            cellText=table_rows,
+            colLabels=["Category", "Basin"],
+            cellLoc="center",
+            loc="center",
+            bbox=[0.00, 0.29, 1.00, 0.22]
+        )
+        
+        table.auto_set_font_size(False)
+        table.set_fontsize(10.5)
+        
+        for (row, col), cell in table.get_celld().items():
+            cell.set_edgecolor("#333333")
+            cell.set_linewidth(0.8)
+        
+            if row == 0:
+                cell.set_facecolor("#D9D9D9")
+                cell.get_text().set_fontweight("bold")
+            elif col == 0:
+                dm_text = cell.get_text().get_text()
+        
+                try:
+                    dm_int = int(dm_text.replace("D", ""))
+                    cell.set_facecolor(color_palette.get(dm_int, "white"))
+                except Exception:
+                    pass
 
         info_ax.text(
             0.02,

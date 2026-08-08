@@ -183,7 +183,7 @@ def register_callbacks(app):
                         visible_style,
                         image_src,
                         "Potomac Basin U.S. Drought Monitor Map",
-                        "U.S. Drought Monitor GeoJSON with USGS WBD HUC8 basin/subbasin boundaries"
+                        ""
                     )
 
             elif group == "marfc":

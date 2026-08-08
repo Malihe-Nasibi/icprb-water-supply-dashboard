@@ -1,16 +1,16 @@
 """
 Drought data module.
 
-This file downloads and prepares Potomac HUC8 boundary layers and calculates
+This file loads the local Potomac Basin boundary and calculates
 U.S. Drought Monitor drought-category percentages for the Potomac Basin.
 """
 
+import os
 from functools import lru_cache
 
 import geopandas as gpd
 
-from config import POTOMAC_HUC8_GEOJSON_URL
-from data_fetching.streamflow_usgs import get_daily_cache_key
+from config import POTOMAC_BASIN_GEOJSON_FILE
 
 
 # Geometry helpers
@@ -105,41 +105,38 @@ def calculate_usdm_basin_percentages(usdm_gdf, watershed_gdf):
 # Potomac Basin boundary layers
 
 @lru_cache(maxsize=4)
-def load_potomac_boundary_layers_cached(cache_date):
+def load_potomac_boundary_layers_cached(boundary_file, modified_time):
     """
-    Download and prepare Potomac Basin HUC8 boundary layers from the USGS WBD
-    web service.
+    Load the local Potomac Basin boundary file.
+
+    The same basin geometry is returned twice so the existing drought-map
+    plotting code can continue to receive both a subbasin layer and a full
+    watershed layer.
     """
 
-    hucs = gpd.read_file(POTOMAC_HUC8_GEOJSON_URL)
+    if not os.path.exists(boundary_file):
+        raise FileNotFoundError(f"Missing Potomac Basin boundary file: {boundary_file}")
 
-    if hucs.empty:
-        raise ValueError("No Potomac HUC8 boundaries were returned from the WBD web service.")
+    basin_gdf = gpd.read_file(boundary_file)
+    basin_gdf = _clean_geometry(basin_gdf)
 
-    hucs = _standardize_huc8_columns(hucs)
-    hucs = _clean_geometry(hucs)
+    if basin_gdf.crs is None:
+        basin_gdf = basin_gdf.set_crs("EPSG:4326")
 
-    if hucs.crs is None:
-        hucs = hucs.set_crs("EPSG:4326")
+    watershed_gdf = basin_gdf.dissolve().reset_index(drop=True)
+    watershed_gdf = _clean_geometry(watershed_gdf)
 
-    # The URL should already filter to HUC8 codes starting with 020700, but
-    # this second filter as a safety check if the service query behavior changes.
-    hucs["HUC8"] = hucs["HUC8"].astype(str)
-    hucs = hucs[hucs["HUC8"].str.startswith("020700")].copy()
+    # huc8_gdf is kept for compatibility with the current plotting function.
+    # With the local basin file, it represents the basin boundary layer.
+    huc8_gdf = watershed_gdf.copy()
 
-    if hucs.empty:
-        raise ValueError("The WBD layer downloaded, but no HUC8 codes starting with 020700 were found.")
-
-    watershed = hucs.dissolve()
-    watershed = watershed.reset_index(drop=True)
-    watershed["Name"] = "Potomac Basin"
-
-    print(f"Downloaded Potomac boundary layers from web. Cache date: {cache_date}")
-
-    return hucs, watershed
+    return huc8_gdf, watershed_gdf
 
 
 def load_potomac_boundary_layers():
-    cache_date = get_daily_cache_key()
-    hucs, watershed = load_potomac_boundary_layers_cached(cache_date)
-    return hucs.copy(), watershed.copy()
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    boundary_file = os.path.join(project_root, POTOMAC_BASIN_GEOJSON_FILE)
+
+    modified_time = os.path.getmtime(boundary_file)
+
+    return load_potomac_boundary_layers_cached(boundary_file, modified_time)
