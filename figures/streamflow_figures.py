@@ -12,6 +12,13 @@ import plotly.graph_objects as go
 from config import STATIONS
 from data_fetching.streamflow_usgs import load_station_record
 
+# Format streamflow y-axis tick labels
+
+def format_streamflow_tick(value):
+    if value >= 100000:
+        return f"{value:.1e}".replace("e+0", "e+")
+    return f"{value:,.0f}"
+
 
 # Prepare streamflow percentile data
 
@@ -121,6 +128,23 @@ def build_streamflow_figure(site_id, selected_year, flow_type):
     black_line_label = f"{selected_year} {flow_label}"
 
     fig = go.Figure()
+    
+    y_tick_values = [
+        1000,
+        10000,
+        20000,
+        30000,
+        50000,
+        100000,
+        200000,
+        300000,
+        400000
+    ]
+    
+    y_tick_labels = [
+        format_streamflow_tick(value)
+        for value in y_tick_values
+    ]
 
     percentile_bands = [
         {
@@ -264,8 +288,8 @@ def build_streamflow_figure(site_id, selected_year, flow_type):
                 font=dict(size=20, color="black")
             ),
             tickmode="array",
-            tickvals=[10, 100, 1000, 10000, 100000, 1000000],
-            ticktext=["10¹", "10²", "10³", "10⁴", "10⁵", "10⁶"],
+            tickvals=y_tick_values,
+            ticktext=y_tick_labels,
             tickfont=dict(size=18, color="black"),
             showgrid=True
         ),

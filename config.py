@@ -14,6 +14,7 @@ SITE_TIMEZONE = "America/New_York"
 STATIONS = {
     "01646502": "Little Falls Pump Station",
     "01646500": "Little Falls",
+    "01638500": "Potomac River at Point of Rocks, MD",
     "01614500": "Conococheague Creek at Fairview, MD",
     "01643000": "Monocacy River at Jug Bridge Near Frederick, MD",
     "01636500": "Shenandoah River at Millville, WV",
