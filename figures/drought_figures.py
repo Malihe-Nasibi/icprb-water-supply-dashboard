@@ -169,21 +169,10 @@ def build_potomac_usdm_map_src(cache_date):
             info_ax.text(0.12, y - 0.006, label, fontsize=11.5, va="center")
             y -= 0.052
 
-         # Basin percentage table
+        # Basin percentage table
         table_rows = []
 
-        nonzero_categories = [
-            dm_value
-            for dm_value, percent_value in basin_percentages.items()
-            if percent_value > 0.05
-        ]
-
-        if nonzero_categories:
-            max_category_to_show = min(max(nonzero_categories) + 1, 4)
-        else:
-            max_category_to_show = 0
-
-        for dm_value in range(max_category_to_show + 1):
+        for dm_value in range(4):
             percent_value = basin_percentages.get(dm_value, 0.0)
 
             if abs(percent_value) < 0.05:
@@ -202,7 +191,7 @@ def build_potomac_usdm_map_src(cache_date):
             colLabels=["Category", "Basin"],
             cellLoc="center",
             loc="center",
-            bbox=[0.00, 0.29, 1.00, 0.22]
+            bbox=[0.00, 0.29, 1.00, 0.24]
         )
         
         table.auto_set_font_size(False)
