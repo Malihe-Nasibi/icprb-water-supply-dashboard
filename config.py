@@ -59,7 +59,7 @@ PRECIPITATION_IMAGES = [
     {
         "title": "72-hr Precipitation Forecast",
         "source": "Middle Atlantic River Forecast Center",
-        "url": "https://www.weather.gov/images/marfc/qpf_small/small_qpf_72hr_72.jpg"
+        "url": "https://www.weather.gov/images/marfc/qpf/qpf_72hr_72.png"
     },
     {
         "title": "5-Day Total Precipitation",

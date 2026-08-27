@@ -2,7 +2,7 @@
 Groundwater figure module.
 
 This file builds the groundwater Plotly figure using prepared USGS groundwater
-data from data_fetching/groundwater.py.
+data from data_fetching/groundwater.py. It also builds the groundwater well map.
 """
 
 import numpy as np
@@ -13,7 +13,83 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from config import GROUNDWATER_WELLS
-from data_fetching.groundwater import load_groundwater_record
+from data_fetching.groundwater import load_groundwater_record, load_groundwater_well_metadata
+
+
+# Groundwater well map
+
+def build_groundwater_well_map(selected_well=None):
+    """
+    Build a clickable groundwater well-location map.
+
+    Hovering over a well shows the well name, site ID, latitude, and longitude.
+    Clicking a well updates the groundwater plot through the dashboard callback.
+    """
+
+    metadata = load_groundwater_well_metadata()
+
+    if selected_well is None or selected_well not in metadata["Well_Name"].values:
+        selected_well = "VA51S7"
+
+    metadata["Marker_Color"] = np.where(
+        metadata["Well_Name"] == selected_well,
+        "yellow",
+        "royalblue"
+    )
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Scattermapbox(
+            lon=metadata["Longitude"],
+            lat=metadata["Latitude"],
+            mode="markers",
+            text=metadata["Well_Name"],
+            customdata=np.stack(
+                (
+                    metadata["Well_Name"],
+                    metadata["Site_ID"],
+                    metadata["Latitude"],
+                    metadata["Longitude"]
+                ),
+                axis=-1
+            ),
+            marker=dict(
+                size=15,
+                color=metadata["Marker_Color"],
+                opacity=0.9
+            ),
+            hoverlabel=dict(
+                font_size=16,
+                font_family="Arial",
+                bgcolor="white"
+            ),
+            hovertemplate=(
+            "<b>Well:</b> %{customdata[0]}<br>"
+            "<b>Site ID:</b> %{customdata[1]}<br>"
+            "<b>Latitude:</b> %{customdata[2]:.4f}<br>"
+            "<b>Longitude:</b> %{customdata[3]:.4f}"
+            "<extra></extra>"
+        )
+        )
+    )
+
+    fig.update_layout(
+        mapbox=dict(
+            style="open-street-map",
+            center=dict(
+                lat=38.9,
+                lon=-77.8
+            ),
+            zoom=7.0
+        ),
+        template="plotly_white",
+        height=600,
+        showlegend=False,
+        margin=dict(l=10, r=10, t=10, b=10)
+    )
+
+    return fig
 
 
 # Groundwater calculations and figure

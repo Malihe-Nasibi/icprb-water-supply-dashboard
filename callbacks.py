@@ -19,7 +19,11 @@ from config import (
 )
 from data_fetching.streamflow_usgs import load_station_record, get_daily_cache_key
 from figures.streamflow_figures import build_streamflow_figure, make_error_figure
-from figures.groundwater_figures import build_groundwater_figure, make_groundwater_error_figure
+from figures.groundwater_figures import (
+    build_groundwater_figure,
+    build_groundwater_well_map,
+    make_groundwater_error_figure
+)
 from figures.reservoir_figures import build_reservoir_storage_figure, make_reservoir_error_figure
 from figures.drought_figures import build_potomac_usdm_map_src
 from figures.forecast_figures import build_marfc_image_url
@@ -61,24 +65,57 @@ def register_callbacks(app):
         return streamflow_layout()
 
 
+    # Callback to update groundwater well map
+
+    @app.callback(
+        Output("groundwater-well-map", "figure"),
+        Input("groundwater-well-map", "clickData")
+    )
+    def update_groundwater_well_map(click_data):
+        selected_well = "VA51S7"
+
+        if click_data and click_data.get("points"):
+            selected_well = click_data["points"][0]["customdata"][0]
+
+        try:
+            return build_groundwater_well_map(selected_well)
+        except Exception as e:
+            error_message = str(e)
+            print("Groundwater well map callback error:", error_message)
+
+            fig = go.Figure()
+            fig.update_layout(
+                title="Groundwater well map could not be loaded",
+                template="plotly_white",
+                height=460
+            )
+            fig.add_annotation(
+                text=f"Error: {error_message}",
+                xref="paper",
+                yref="paper",
+                x=0.5,
+                y=0.5,
+                showarrow=False,
+                font=dict(size=16, color="red"),
+                align="center"
+            )
+            return fig
+
+
     # Callback to update groundwater figure
 
     @app.callback(
         Output("groundwater-graph", "figure"),
-        Input("groundwater-well-dropdown", "value")
+        Input("groundwater-well-map", "clickData")
     )
-    def update_groundwater_graph(well_name):
-        if well_name is None:
-            fig = go.Figure()
-            fig.update_layout(
-                title="Waiting for groundwater well selection...",
-                template="plotly_white",
-                height=500
-            )
-            return fig
+    def update_groundwater_graph(click_data):
+        selected_well = "VA51S7"
+
+        if click_data and click_data.get("points"):
+            selected_well = click_data["points"][0]["customdata"][0]
 
         try:
-            return build_groundwater_figure(well_name)
+            return build_groundwater_figure(selected_well)
         except Exception as e:
             error_message = str(e)
             print("Groundwater callback error:", error_message)
