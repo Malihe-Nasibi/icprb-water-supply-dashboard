@@ -1,46 +1,45 @@
 """
 NOAA layout module.
 
-This file builds the NOAA Outlooks tab.
-It also defines image_card(), a reusable function that creates one
-clickable image box with a title, source text, and image. 
-The same image_card() function is also used by the Precipitation tab.
-"""
+This file builds the Climate Outlooks tab.
 
-from datetime import date
+It also defines image_card(), a small reusable function that creates one
+clickable image box with a title, source text, and image. The same image_card()
+function is also used by the Precipitation tab.
+"""
 
 from dash import html
 
 from config import NOAA_OUTLOOK_IMAGES
 
 
-# Reusable image card
+# Outlook image card
 
-def image_card(group, index, title, source, url):
-    cache_buster = date.today().strftime("%Y%m%d")
-    image_url = f"{url}?v={cache_buster}"
-
+def image_card(item, group, index):
     return html.Div(
         style={
             "backgroundColor": "white",
             "padding": "18px",
-            "borderRadius": "12px",
-            "boxShadow": "0px 1px 5px rgba(0,0,0,0.18)",
-            "marginBottom": "22px"
+            "borderRadius": "14px",
+            "boxShadow": "0px 2px 7px rgba(0,0,0,0.18)",
+            "marginBottom": "24px",
+            "border": "1px solid #e1e7ef",
+            "width": "520px"
         },
         children=[
             html.H3(
-                title,
+                item["title"],
                 style={
                     "textAlign": "center",
-                    "fontSize": "23px",
+                    "fontSize": "24px",
                     "fontWeight": "bold",
                     "marginTop": "0px",
-                    "marginBottom": "6px"
+                    "marginBottom": "6px",
+                    "color": "#1f2d3d"
                 }
             ),
             html.P(
-                source,
+                item["source"],
                 style={
                     "textAlign": "center",
                     "fontSize": "14px",
@@ -59,10 +58,9 @@ def image_card(group, index, title, source, url):
                             "index": index
                         },
                         n_clicks=0,
-                        src=image_url,
+                        src=item["url"],
                         style={
-                            "width": "95%",
-                            "maxWidth": "950px",
+                            "width": "100%",
                             "border": "1px solid lightgray",
                             "cursor": "pointer"
                         }
@@ -73,9 +71,45 @@ def image_card(group, index, title, source, url):
     )
 
 
-# NOAA Outlooks tab layout
+# Outlook section
+
+def outlook_section(title, items, group, index_offset):
+    return html.Div(
+        children=[
+            html.H3(
+                title,
+                style={
+                    "fontSize": "25px",
+                    "fontWeight": "bold",
+                    "color": "#1f2d3d",
+                    "marginTop": "8px",
+                    "marginBottom": "16px",
+                    "textAlign": "left"
+                }
+            ),
+            html.Div(
+                style={
+                    "display": "flex",
+                    "gap": "22px",
+                    "flexWrap": "wrap",
+                    "alignItems": "flex-start",
+                    "marginBottom": "10px"
+                },
+                children=[
+                    image_card(item, group, index_offset + i)
+                    for i, item in enumerate(items)
+                ]
+            )
+        ]
+    )
+
+
+# Climate Outlooks tab layout
 
 def noaa_outlooks_layout():
+    monthly_items = NOAA_OUTLOOK_IMAGES["monthly"]
+    seasonal_items = NOAA_OUTLOOK_IMAGES["seasonal"]
+
     return html.Div(
         children=[
             html.Div(
@@ -89,7 +123,7 @@ def noaa_outlooks_layout():
                 },
                 children=[
                     html.H2(
-                        "NOAA Climate Outlooks",
+                        "Climate Outlooks",
                         style={
                             "fontSize": "28px",
                             "fontWeight": "bold",
@@ -97,7 +131,7 @@ def noaa_outlooks_layout():
                         }
                     ),
                     html.P(
-                        "Official 30-day temperature and precipitation probability outlooks from NOAA Climate Prediction Center.",
+                        "NOAA Climate Prediction Center monthly and seasonal outlook products.",
                         style={
                             "fontSize": "16px",
                             "marginBottom": "0px"
@@ -105,22 +139,17 @@ def noaa_outlooks_layout():
                     )
                 ]
             ),
-            html.Div(
-                style={
-                    "display": "grid",
-                    "gridTemplateColumns": "repeat(auto-fit, minmax(420px, 1fr))",
-                    "gap": "22px"
-                },
-                children=[
-                    image_card(
-                        "noaa",
-                        index,
-                        item["title"],
-                        item["source"],
-                        item["url"]
-                    )
-                    for index, item in enumerate(NOAA_OUTLOOK_IMAGES)
-                ]
+            outlook_section(
+                title="Monthly Outlooks",
+                items=monthly_items,
+                group="noaa",
+                index_offset=0
+            ),
+            outlook_section(
+                title="Seasonal Outlooks",
+                items=seasonal_items,
+                group="noaa",
+                index_offset=len(monthly_items)
             )
         ]
     )

@@ -230,7 +230,7 @@ def flow_forecasts_layout():
                                     }
                                     for model_id, model_label in FLOW_FORECAST_MODELS.items()
                                 ],
-                                value="NAEFS",
+                                value="NWPS",
                                 clearable=False,
                                 style={"marginTop": "8px"}
                             )
@@ -240,7 +240,7 @@ def flow_forecasts_layout():
             ),
             html.Div(
                 id="forecast-products-container",
-                children=flow_forecast_products("BRKM2", "NAEFS")
+                children=flow_forecast_products("BRKM2", "NWPS")
             )
         ]
     )

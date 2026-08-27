@@ -44,7 +44,7 @@ def streamflow_layout():
                                     }
                                     for site_id, station_name in STATIONS.items()
                                 ],
-                                value="01646502",
+                                value=list(STATIONS.keys())[0],
                                 clearable=False
                             )
                         ]

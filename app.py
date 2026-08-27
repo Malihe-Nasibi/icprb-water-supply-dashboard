@@ -45,6 +45,41 @@ app.index_string = f"""
 """
 
 
+# Dashboard menu styles
+
+MENU_TAB_STYLE = {
+    "padding": "17px 18px",
+    "marginBottom": "12px",
+    "borderRadius": "12px",
+    "backgroundColor": "#e7eef6",
+    "color": "#1f2d3d",
+    "fontSize": "20px",
+    "fontWeight": "bold",
+    "border": "1px solid #c7d4e3",
+    "boxShadow": "0px 3px 7px rgba(0,0,0,0.16)",
+    "cursor": "pointer",
+    "textAlign": "center"
+}
+
+MENU_TAB_SELECTED_STYLE = {
+    "padding": "17px 18px",
+    "marginBottom": "12px",
+    "borderRadius": "12px",
+    "backgroundColor": "#1f4e79",
+    "color": "white",
+    "fontSize": "20px",
+    "fontWeight": "900",
+    "border": "1px solid #153650",
+    "boxShadow": (
+        "inset 1px 1px 2px rgba(255,255,255,0.35), "
+        "inset -2px -2px 4px rgba(0,0,0,0.25), "
+        "0px 5px 10px rgba(0,0,0,0.24)"
+    ),
+    "cursor": "pointer",
+    "textAlign": "center"
+}
+
+
 # Main app layout
 
 app.layout = html.Div(
@@ -55,14 +90,26 @@ app.layout = html.Div(
         "padding": "25px"
     },
     children=[
-        html.H1(
-            "Water Supply Outlook Dashboard",
+        html.Div(
             style={
-                "textAlign": "center",
-                "fontSize": "34px",
-                "fontWeight": "bold",
-                "marginBottom": "8px"
-            }
+                "width": "100%",
+                "display": "flex",
+                "justifyContent": "center",
+                "alignItems": "center",
+                "marginBottom": "18px"
+            },
+            children=[
+                html.H1(
+                    "Water Supply Outlook Dashboard",
+                    style={
+                        "textAlign": "center",
+                        "fontSize": "34px",
+                        "fontWeight": "bold",
+                        "margin": "0px",
+                        "color": "#1f2d3d"
+                    }
+               )   
+            ]
         ),
 
         html.Div(
@@ -93,36 +140,61 @@ app.layout = html.Div(
                                 "color": "#1f2d3d"
                             }
                         ),
-                        dcc.RadioItems(
+                        dcc.Tabs(
                             id="dashboard-tab",
-                            options=[
-                                {"label": " Streamflow", "value": "streamflow"},
-                                {"label": " Flow Forecasts", "value": "flow_forecasts"},
-                                {"label": " Groundwater", "value": "groundwater"},
-                                {"label": " Drought Monitor", "value": "drought"},
-                                {"label": " Reservoir Storage", "value": "reservoir"},
-                                {"label": " NOAA Outlooks", "value": "noaa"},
-                                {"label": " Precipitation", "value": "precip"}
-                            ],
                             value="streamflow",
-                            labelStyle={
-                                "display": "block",
-                                "padding": "18px 20px",
-                                "marginBottom": "15px",
-                                "borderRadius": "13px",
-                                "backgroundColor": "#dfe8f3",
-                                "cursor": "pointer",
-                                "fontSize": "20px",
-                                "fontWeight": "bold",
-                                "color": "#1f2d3d",
-                                "boxShadow": "0px 4px 8px rgba(0,0,0,0.18)",
-                                "border": "2px solid #c7d4e3",
-                                "minWidth": "190px"
+                            vertical=True,
+                            parent_style={
+                                "border": "none"
                             },
-                            inputStyle={
-                                "marginRight": "12px",
-                                "transform": "scale(1.25)"
-                            }
+                            style={
+                                "height": "auto",
+                                "border": "none"
+                            },
+                            children=[
+                                dcc.Tab(
+                                    label="Historical Streamflow",
+                                    value="streamflow",
+                                    style=MENU_TAB_STYLE,
+                                    selected_style=MENU_TAB_SELECTED_STYLE
+                                ),
+                                dcc.Tab(
+                                    label="Streamflow Forecast",
+                                    value="flow_forecasts",
+                                    style=MENU_TAB_STYLE,
+                                    selected_style=MENU_TAB_SELECTED_STYLE
+                                ),
+                                dcc.Tab(
+                                    label="Precipitation",
+                                    value="precip",
+                                    style=MENU_TAB_STYLE,
+                                    selected_style=MENU_TAB_SELECTED_STYLE
+                                ),
+                                dcc.Tab(
+                                    label="Groundwater",
+                                    value="groundwater",
+                                    style=MENU_TAB_STYLE,
+                                    selected_style=MENU_TAB_SELECTED_STYLE
+                                ),
+                                dcc.Tab(
+                                    label="Drought Monitor",
+                                    value="drought",
+                                    style=MENU_TAB_STYLE,
+                                    selected_style=MENU_TAB_SELECTED_STYLE
+                                ),
+                                dcc.Tab(
+                                    label="Reservoir Storage",
+                                    value="reservoir",
+                                    style=MENU_TAB_STYLE,
+                                    selected_style=MENU_TAB_SELECTED_STYLE
+                                ),
+                                dcc.Tab(
+                                    label="Climate Outlooks",
+                                    value="noaa",
+                                    style=MENU_TAB_STYLE,
+                                    selected_style=MENU_TAB_SELECTED_STYLE
+                                )
+                            ]
                         )
                     ]
                 ),

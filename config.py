@@ -12,13 +12,13 @@ SITE_TIMEZONE = "America/New_York"
 # Station lists
 
 STATIONS = {
-    "01646502": "Little Falls Pump Station",
     "01646500": "Little Falls",
     "01638500": "Potomac River at Point of Rocks, MD",
     "01614500": "Conococheague Creek at Fairview, MD",
     "01643000": "Monocacy River at Jug Bridge Near Frederick, MD",
     "01636500": "Shenandoah River at Millville, WV",
-    "01603000": "North Branch Potomac River Near Cumberland, MD"
+    "01603000": "North Branch Potomac River Near Cumberland, MD",
+    "01646502": "Little Falls Pump Station"
 }
 
 GROUNDWATER_WELLS = {
@@ -73,18 +73,42 @@ PRECIPITATION_IMAGES = [
     }
 ]
 
-NOAA_OUTLOOK_IMAGES = [
-    {
-        "title": "30-Day Temperature Outlook",
-        "source": "NOAA Climate Prediction Center",
-        "url": "https://www.cpc.ncep.noaa.gov/products/predictions/30day/off15_temp.gif"
-    },
-    {
-        "title": "30-Day Precipitation Outlook",
-        "source": "NOAA Climate Prediction Center",
-        "url": "https://www.cpc.ncep.noaa.gov/products/predictions/30day/off15_prcp.gif"
-    }
-]
+NOAA_OUTLOOK_IMAGES = {
+    "monthly": [
+        {
+            "title": "30-Day Temperature Outlook",
+            "source": "NOAA Climate Prediction Center",
+            "url": "https://www.cpc.ncep.noaa.gov/products/predictions/30day/off15_temp.gif"
+        },
+        {
+            "title": "30-Day Precipitation Outlook",
+            "source": "NOAA Climate Prediction Center",
+            "url": "https://www.cpc.ncep.noaa.gov/products/predictions/30day/off15_prcp.gif"
+        },
+        {
+            "title": "Monthly Drought Outlook",
+            "source": "NOAA Climate Prediction Center",
+            "url": "https://www.cpc.ncep.noaa.gov/products/expert_assessment/month_drought.png"
+        }
+    ],
+    "seasonal": [
+        {
+            "title": "Seasonal Temperature Outlook",
+            "source": "NOAA Climate Prediction Center",
+            "url": "https://www.cpc.ncep.noaa.gov/products/predictions/long_range/lead01/off01_temp.gif"
+        },
+        {
+            "title": "Seasonal Precipitation Outlook",
+            "source": "NOAA Climate Prediction Center",
+            "url": "https://www.cpc.ncep.noaa.gov/products/predictions/long_range/lead01/off01_prcp.gif"
+        },
+        {
+            "title": "Seasonal Drought Outlook",
+            "source": "NOAA Climate Prediction Center",
+            "url": "https://www.cpc.ncep.noaa.gov/products/expert_assessment/season_drought.png"
+        }
+    ]
+}
 
 # Flow forecast settings
 
@@ -106,10 +130,10 @@ FLOW_FORECAST_STATIONS = {
 }
 
 FLOW_FORECAST_MODELS = {
+    "NWPS": "NOAA/NWPS Official Forecast",
     "NAEFS": "NAEFS",
     "GEFS": "GEFS",
-    "HEFS": "HEFS",
-    "NWPS": "NOAA/NWPS Official Forecast"
+    "HEFS": "HEFS"
 }
 
 FLOOD_STAGE_LEVELS = {

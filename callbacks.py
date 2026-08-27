@@ -190,8 +190,10 @@ def register_callbacks(app):
                     return visible_style, image_url, item["title"], item["source"]
 
             elif group == "noaa":
-                if index is not None and index < len(NOAA_OUTLOOK_IMAGES):
-                    item = NOAA_OUTLOOK_IMAGES[index]
+                noaa_items = NOAA_OUTLOOK_IMAGES["monthly"] + NOAA_OUTLOOK_IMAGES["seasonal"]
+
+                if index is not None and index < len(noaa_items):
+                    item = noaa_items[index]
                     image_url = f"{item['url']}?v={cache_buster}"
                     return visible_style, image_url, item["title"], item["source"]
 
