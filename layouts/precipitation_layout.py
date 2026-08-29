@@ -10,7 +10,7 @@ from config import PRECIPITATION_IMAGES
 from layouts.noaa_layout import image_card
 
 
-
+# Precipitation tab layout
 
 def precipitation_layout():
     return html.Div(
@@ -44,18 +44,13 @@ def precipitation_layout():
             ),
             html.Div(
                 style={
-                    "display": "grid",
-                    "gridTemplateColumns": "repeat(auto-fit, minmax(420px, 1fr))",
-                    "gap": "22px"
+                    "display": "flex",
+                    "gap": "22px",
+                    "flexWrap": "wrap",
+                    "alignItems": "flex-start"
                 },
                 children=[
-                    image_card(
-                        "precipitation",
-                        index,
-                        item["title"],
-                        item["source"],
-                        item["url"]
-                    )
+                    image_card(item, "precipitation", index)
                     for index, item in enumerate(PRECIPITATION_IMAGES)
                 ]
             )
