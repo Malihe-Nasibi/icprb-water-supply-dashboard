@@ -10,6 +10,7 @@ from datetime import date
 import plotly.graph_objects as go
 from dash import Input, Output, ctx, ALL
 from dash.exceptions import PreventUpdate
+
 from config import (
     PRECIPITATION_IMAGES,
     NOAA_OUTLOOK_IMAGES,
@@ -28,6 +29,7 @@ from figures.reservoir_figures import build_reservoir_storage_figure, make_reser
 from figures.drought_figures import build_potomac_usdm_map_src
 from figures.forecast_figures import build_marfc_image_url
 from layouts.streamflow_layout import streamflow_layout
+from layouts.home_layout import home_layout
 from layouts.groundwater_layout import groundwater_layout
 from layouts.drought_layout import drought_monitor_layout
 from layouts.noaa_layout import noaa_outlooks_layout
@@ -47,7 +49,9 @@ def register_callbacks(app):
         Input("dashboard-tab", "value")
     )
     def render_selected_tab(selected_tab):
-        if selected_tab == "streamflow":
+        if selected_tab == "home":
+            return home_layout()
+        elif selected_tab == "streamflow":
             return streamflow_layout()
         elif selected_tab == "flow_forecasts":
             return flow_forecasts_layout()
@@ -62,7 +66,7 @@ def register_callbacks(app):
         elif selected_tab == "reservoir":
             return reservoir_storage_layout()
 
-        return streamflow_layout()
+        return home_layout()
 
 
     # Callback to update groundwater well map

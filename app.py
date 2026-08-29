@@ -10,6 +10,7 @@ from dash import Dash, dcc, html
 
 from callbacks import register_callbacks
 from styles import DROPDOWN_CSS
+from layouts.home_layout import home_layout
 from layouts.streamflow_layout import streamflow_layout
 
 
@@ -48,8 +49,10 @@ app.index_string = f"""
 # Dashboard menu styles
 
 MENU_TAB_STYLE = {
+    "width": "100%",
+    "boxSizing": "border-box",
     "padding": "17px 18px",
-    "marginBottom": "12px",
+    "margin": "0 auto 12px auto",
     "borderRadius": "12px",
     "backgroundColor": "#e7eef6",
     "color": "#1f2d3d",
@@ -62,8 +65,10 @@ MENU_TAB_STYLE = {
 }
 
 MENU_TAB_SELECTED_STYLE = {
+    "width": "100%",
+    "boxSizing": "border-box",
     "padding": "17px 18px",
-    "marginBottom": "12px",
+    "margin": "0 auto 12px auto",
     "borderRadius": "12px",
     "backgroundColor": "#1f4e79",
     "color": "white",
@@ -96,7 +101,9 @@ app.layout = html.Div(
                 "display": "flex",
                 "justifyContent": "center",
                 "alignItems": "center",
-                "marginBottom": "18px"
+                "marginBottom": "18px",
+                "paddingLeft": "334px",
+                "boxSizing": "border-box"
             },
             children=[
                 html.H1(
@@ -108,7 +115,7 @@ app.layout = html.Div(
                         "margin": "0px",
                         "color": "#1f2d3d"
                     }
-               )   
+                )
             ]
         ),
 
@@ -127,7 +134,8 @@ app.layout = html.Div(
                         "boxShadow": "0px 4px 12px rgba(0,0,0,0.18)",
                         "padding": "20px",
                         "position": "sticky",
-                        "top": "20px"
+                        "top": "20px",
+                        "boxSizing": "border-box"
                     },
                     children=[
                         html.Div(
@@ -142,16 +150,24 @@ app.layout = html.Div(
                         ),
                         dcc.Tabs(
                             id="dashboard-tab",
-                            value="streamflow",
+                            value="home",
                             vertical=True,
                             parent_style={
-                                "border": "none"
+                                "border": "none",
+                                "width": "100%"
                             },
                             style={
                                 "height": "auto",
-                                "border": "none"
+                                "border": "none",
+                                "width": "100%"
                             },
                             children=[
+                                dcc.Tab(
+                                    label="Home",
+                                    value="home",
+                                    style=MENU_TAB_STYLE,
+                                    selected_style=MENU_TAB_SELECTED_STYLE
+                                ),
                                 dcc.Tab(
                                     label="Historical Streamflow",
                                     value="streamflow",
@@ -205,7 +221,7 @@ app.layout = html.Div(
                         "flex": "1",
                         "minWidth": "0"
                     },
-                    children=streamflow_layout()
+                    children=home_layout()
                 )
             ]
         ),
