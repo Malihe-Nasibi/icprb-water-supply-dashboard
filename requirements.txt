@@ -2,7 +2,7 @@ dash
 pandas
 numpy
 requests
-plotly
+plotly==5.24.1
 gunicorn
 matplotlib
 geopandas
