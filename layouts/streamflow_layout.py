@@ -90,6 +90,33 @@ def streamflow_layout():
                     )
                 ]
             ),
-            dcc.Graph(id="streamflow-graph")
+
+            dcc.Graph(
+                id="streamflow-graph",
+                config={"displaylogo": False}
+            ),
+
+            html.P(
+                children=[
+                    "Data source: ",
+                    html.A(
+                        "U.S. Geological Survey (USGS) Water Data for the Nation",
+                        href="https://waterdata.usgs.gov/",
+                        target="_blank",
+                        style={
+                            "color": "#124A9F",
+                            "textDecoration": "none",
+                            "fontWeight": "bold"
+                        }
+                    )
+                ],
+                style={
+                    "fontSize": "14px",
+                    "color": "gray",
+                    "textAlign": "center",
+                    "marginTop": "6px",
+                    "marginBottom": "0px"
+                }
+            )
         ]
     )

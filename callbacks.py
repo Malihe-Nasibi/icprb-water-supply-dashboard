@@ -8,7 +8,7 @@ figures, forecast products, and image popups.
 from datetime import date
 
 import plotly.graph_objects as go
-from dash import Input, Output, ctx, ALL
+from dash import Input, Output, ctx, ALL, html
 from dash.exceptions import PreventUpdate
 
 from config import (
@@ -35,7 +35,10 @@ from layouts.drought_layout import drought_monitor_layout
 from layouts.noaa_layout import noaa_outlooks_layout
 from layouts.precipitation_layout import precipitation_layout
 from layouts.forecasts_layout import flow_forecasts_layout, flow_forecast_products
-from layouts.reservoir_layout import reservoir_storage_layout
+from layouts.reservoir_layout import (
+    reservoir_storage_layout,
+    reservoir_source_note_children
+)
 
 
 # Register callbacks
@@ -319,10 +322,13 @@ def register_callbacks(app):
             return make_error_figure(error_message)
 
 
-    # Callback to update reservoir storage figure
+    # Callback to update reservoir storage figure and source note
 
     @app.callback(
-        Output("reservoir-storage-graph", "figure"),
+        [
+            Output("reservoir-storage-graph", "figure"),
+            Output("reservoir-source-note", "children")
+        ],
         Input("reservoir-storage-dropdown", "value")
     )
     def update_reservoir_storage_graph(selected_column):
@@ -333,11 +339,17 @@ def register_callbacks(app):
                 template="plotly_white",
                 height=500
             )
-            return fig
+            return fig, ["Data source: ", html.Strong("Not specified")]
 
         try:
-            return build_reservoir_storage_figure(selected_column)
+            return (
+                build_reservoir_storage_figure(selected_column),
+                reservoir_source_note_children(selected_column)
+            )
         except Exception as e:
             error_message = str(e)
             print("Reservoir storage callback error:", error_message)
-            return make_reservoir_error_figure(error_message)
+            return (
+                make_reservoir_error_figure(error_message),
+                ["Data source: ", html.Strong("Not specified")]
+            )

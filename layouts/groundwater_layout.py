@@ -66,7 +66,33 @@ def groundwater_layout():
                     "border": "1px solid #e1e7ef"
                 },
                 children=[
-                    dcc.Graph(id="groundwater-graph")
+                    dcc.Graph(
+                        id="groundwater-graph",
+                        config={"displaylogo": False}
+                    ),
+
+                    html.P(
+                        children=[
+                            "Data source: ",
+                            html.A(
+                                "U.S. Geological Survey (USGS) Water Data for the Nation",
+                                href="https://waterdata.usgs.gov/",
+                                target="_blank",
+                                style={
+                                    "color": "#124A9F",
+                                    "textDecoration": "none",
+                                    "fontWeight": "bold"
+                                }
+                            )
+                        ],
+                        style={
+                            "fontSize": "14px",
+                            "color": "gray",
+                            "textAlign": "center",
+                            "marginTop": "6px",
+                            "marginBottom": "0px"
+                        }
+                    )
                 ]
             )
         ]

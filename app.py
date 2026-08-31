@@ -139,6 +139,23 @@ app.layout = html.Div(
                     },
                     children=[
                         html.Div(
+                            style={
+                                "textAlign": "center",
+                                "marginBottom": "16px"
+                            },
+                            children=[
+                                html.Img(
+                                    src="/assets/logos/icprb.jpg",
+                                    style={
+                                        "height": "220px",
+                                        "width": "220px",
+                                        "objectFit": "contain"
+                                    }
+                                )
+                            ]
+                        ),
+
+                        html.Div(
                             "Dashboard Menu",
                             style={
                                 "fontWeight": "bold",

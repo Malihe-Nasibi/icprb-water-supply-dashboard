@@ -2,7 +2,8 @@
 Reservoir layout module.
 
 This file builds the Reservoir Storage tab, including reservoir summary cards,
-the reservoir dropdown, and the reservoir storage graph container.
+the reservoir dropdown, the reservoir storage graph container, and the reservoir
+data-source note.
 """
 
 from dash import dcc, html
@@ -19,7 +20,33 @@ from figures.reservoir_figures import (
 )
 
 
+# Reservoir data-source helper
 
+RESERVOIR_DATA_SOURCES = {
+    "WSSC - Patuxent reservoirs current usable storage (BG)": "WSSC Water",
+    "WSSC - Little Reservoir current usable storage (BG)": "WSSC Water",
+    "FW - Occoquan Reservoir current usable storage (BG)": "Fairfax Water",
+    "USACE - Jennings Randolph Reservoir current usable storage (BG)": "U.S. Army Corps of Engineers",
+    "USACE - Jennings Randolph Reservoir water supply storage (BG)": "U.S. Army Corps of Engineers",
+    "USACE - Savage Reservoir current usable storage (BG)": "U.S. Army Corps of Engineers"
+}
+
+
+def get_reservoir_data_source(selected_column):
+    return RESERVOIR_DATA_SOURCES.get(
+        selected_column,
+        "Not specified"
+    )
+
+
+def reservoir_source_note_children(selected_column):
+    return [
+        "Data source: ",
+        html.Strong(get_reservoir_data_source(selected_column))
+    ]
+
+
+# Reservoir Storage tab layout
 
 def reservoir_storage_layout():
     try:
@@ -104,7 +131,20 @@ def reservoir_storage_layout():
                     children=[
                         dcc.Graph(
                             id="reservoir-storage-graph",
-                            figure=build_reservoir_storage_figure(default_column)
+                            figure=build_reservoir_storage_figure(default_column),
+                            config={"displaylogo": False}
+                        ),
+
+                        html.P(
+                            id="reservoir-source-note",
+                            children=reservoir_source_note_children(default_column),
+                            style={
+                                "fontSize": "14px",
+                                "color": "gray",
+                                "textAlign": "center",
+                                "marginTop": "6px",
+                                "marginBottom": "0px"
+                            }
                         )
                     ]
                 )
