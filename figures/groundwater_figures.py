@@ -5,15 +5,89 @@ This file builds the groundwater Plotly figure using prepared USGS groundwater
 data from data_fetching/groundwater.py. It also builds the groundwater well map.
 """
 
-import numpy as np
-import pandas as pd
+import json
+import os
 from datetime import date
 
+import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from config import GROUNDWATER_WELLS
+from config import GROUNDWATER_WELLS, POTOMAC_BASIN_GEOJSON_FILE
 from data_fetching.groundwater import load_groundwater_record, load_groundwater_well_metadata
+
+
+# Potomac Basin boundary helper
+
+def load_potomac_basin_boundary_coordinates():
+    """
+    Read the Potomac Basin GeoJSON boundary and return coordinate rings.
+
+    Each ring is a list of [longitude, latitude] coordinate pairs.
+    """
+
+    if not os.path.exists(POTOMAC_BASIN_GEOJSON_FILE):
+        return []
+
+    with open(POTOMAC_BASIN_GEOJSON_FILE, "r", encoding="utf-8") as f:
+        geojson_data = json.load(f)
+
+    boundary_rings = []
+
+    for feature in geojson_data.get("features", []):
+        geometry = feature.get("geometry", {})
+        geometry_type = geometry.get("type")
+        coordinates = geometry.get("coordinates", [])
+
+        if geometry_type == "Polygon":
+            for ring in coordinates:
+                boundary_rings.append(ring)
+
+        elif geometry_type == "MultiPolygon":
+            for polygon in coordinates:
+                for ring in polygon:
+                    boundary_rings.append(ring)
+
+    return boundary_rings
+
+
+def add_potomac_basin_boundary_to_map(fig):
+    """
+    Add the Potomac Basin boundary outline to the groundwater map.
+
+    The GeoJSON may contain multiple rings/polygon parts. Only the first
+    boundary trace is shown in the legend so the legend label does not repeat.
+    """
+
+    boundary_rings = load_potomac_basin_boundary_coordinates()
+    first_ring = True
+
+    for ring in boundary_rings:
+        if not ring:
+            continue
+
+        lons = [point[0] for point in ring]
+        lats = [point[1] for point in ring]
+
+        fig.add_trace(
+            go.Scattermapbox(
+                lon=lons,
+                lat=lats,
+                mode="lines",
+                name="Potomac Basin Boundary",
+                line=dict(
+                    width=3,
+                    color="#124A9F"
+                ),
+                hoverinfo="skip",
+                showlegend=first_ring
+            )
+        )
+
+        first_ring = False
+
+    return fig
 
 
 # Groundwater well map
@@ -24,6 +98,7 @@ def build_groundwater_well_map(selected_well=None):
 
     Hovering over a well shows the well name, site ID, latitude, and longitude.
     Clicking a well updates the groundwater plot through the dashboard callback.
+    The Potomac Basin boundary is included for spatial context.
     """
 
     metadata = load_groundwater_well_metadata()
@@ -39,11 +114,15 @@ def build_groundwater_well_map(selected_well=None):
 
     fig = go.Figure()
 
+    # Add Potomac Basin boundary first so groundwater wells are plotted on top.
+    fig = add_potomac_basin_boundary_to_map(fig)
+
     fig.add_trace(
         go.Scattermapbox(
             lon=metadata["Longitude"],
             lat=metadata["Latitude"],
             mode="markers",
+            name="Groundwater Wells",
             text=metadata["Well_Name"],
             customdata=np.stack(
                 (
@@ -65,12 +144,12 @@ def build_groundwater_well_map(selected_well=None):
                 bgcolor="white"
             ),
             hovertemplate=(
-            "<b>Well:</b> %{customdata[0]}<br>"
-            "<b>Site ID:</b> %{customdata[1]}<br>"
-            "<b>Latitude:</b> %{customdata[2]:.4f}<br>"
-            "<b>Longitude:</b> %{customdata[3]:.4f}"
-            "<extra></extra>"
-        )
+                "<b>Well:</b> %{customdata[0]}<br>"
+                "<b>Site ID:</b> %{customdata[1]}<br>"
+                "<b>Latitude:</b> %{customdata[2]:.4f}<br>"
+                "<b>Longitude:</b> %{customdata[3]:.4f}"
+                "<extra></extra>"
+            )
         )
     )
 
@@ -78,14 +157,24 @@ def build_groundwater_well_map(selected_well=None):
         mapbox=dict(
             style="open-street-map",
             center=dict(
-                lat=38.9,
-                lon=-77.8
+                lat=39.0,
+                lon=-78.1
             ),
-            zoom=7.0
+            zoom=6.6
         ),
         template="plotly_white",
         height=600,
-        showlegend=False,
+        showlegend=True,
+        legend=dict(
+            x=0.01,
+            y=0.99,
+            xanchor="left",
+            yanchor="top",
+            bgcolor="rgba(255,255,255,0.85)",
+            bordercolor="lightgray",
+            borderwidth=1,
+            font=dict(size=13, color="black")
+        ),
         margin=dict(l=10, r=10, t=10, b=10)
     )
 
@@ -204,11 +293,78 @@ def build_groundwater_figure(well_name):
         col=1
     )
 
-    fig.add_trace(go.Scatter(x=band_df["Date"], y=band_df["P90"], mode="lines", line=dict(width=0), showlegend=False, hoverinfo="skip"), row=2, col=1)
-    fig.add_trace(go.Scatter(x=band_df["Date"], y=band_df["P10"], mode="lines", line=dict(width=0), fill="tonexty", name="10th-90th percentile", fillcolor="rgba(70, 130, 220, 0.14)", hoverinfo="skip"), row=2, col=1)
-    fig.add_trace(go.Scatter(x=band_df["Date"], y=band_df["P75"], mode="lines", line=dict(width=0), showlegend=False, hoverinfo="skip"), row=2, col=1)
-    fig.add_trace(go.Scatter(x=band_df["Date"], y=band_df["P25"], mode="lines", line=dict(width=0), fill="tonexty", name="25th-75th percentile", fillcolor="rgba(70, 130, 220, 0.24)", hoverinfo="skip"), row=2, col=1)
-    fig.add_trace(go.Scatter(x=band_df["Date"], y=band_df["Mean"], mode="lines", name="Monthly mean", line=dict(color="#E07B39", width=2, dash="dash"), hovertemplate="<b>Date:</b> %{x|%b %d, %Y}<br><b>Monthly mean:</b> %{y:.2f} ft<extra></extra>"), row=2, col=1)
+    fig.add_trace(
+        go.Scatter(
+            x=band_df["Date"],
+            y=band_df["P90"],
+            mode="lines",
+            line=dict(width=0),
+            showlegend=False,
+            hoverinfo="skip"
+        ),
+        row=2,
+        col=1
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=band_df["Date"],
+            y=band_df["P10"],
+            mode="lines",
+            line=dict(width=0),
+            fill="tonexty",
+            name="10th-90th percentile",
+            fillcolor="rgba(70, 130, 220, 0.14)",
+            hoverinfo="skip"
+        ),
+        row=2,
+        col=1
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=band_df["Date"],
+            y=band_df["P75"],
+            mode="lines",
+            line=dict(width=0),
+            showlegend=False,
+            hoverinfo="skip"
+        ),
+        row=2,
+        col=1
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=band_df["Date"],
+            y=band_df["P25"],
+            mode="lines",
+            line=dict(width=0),
+            fill="tonexty",
+            name="25th-75th percentile",
+            fillcolor="rgba(70, 130, 220, 0.24)",
+            hoverinfo="skip"
+        ),
+        row=2,
+        col=1
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=band_df["Date"],
+            y=band_df["Mean"],
+            mode="lines",
+            name="Monthly mean",
+            line=dict(color="#E07B39", width=2, dash="dash"),
+            hovertemplate=(
+                "<b>Date:</b> %{x|%b %d, %Y}<br>"
+                "<b>Monthly mean:</b> %{y:.2f} ft"
+                "<extra></extra>"
+            )
+        ),
+        row=2,
+        col=1
+    )
 
     add_segmented_groundwater_trace(fig, df_last, 2, 1, "Observed", "black", 3, True)
 
@@ -237,6 +393,7 @@ def build_groundwater_figure(well_name):
         row=1,
         col=1
     )
+
     fig.update_yaxes(
         autorange="reversed",
         title_text="Depth to water<br>(ft below land surface)",
@@ -244,8 +401,20 @@ def build_groundwater_figure(well_name):
         row=2,
         col=1
     )
-    fig.update_xaxes(tickfont=dict(size=14, color="black"), showgrid=True, row=1, col=1)
-    fig.update_xaxes(tickfont=dict(size=14, color="black"), showgrid=True, row=2, col=1)
+
+    fig.update_xaxes(
+        tickfont=dict(size=14, color="black"),
+        showgrid=True,
+        row=1,
+        col=1
+    )
+
+    fig.update_xaxes(
+        tickfont=dict(size=14, color="black"),
+        showgrid=True,
+        row=2,
+        col=1
+    )
 
     record_start = df["Date"].min().strftime("%Y-%m-%d")
     record_end = df["Date"].max().strftime("%Y-%m-%d")
@@ -282,11 +451,13 @@ def build_groundwater_figure(well_name):
 
 def make_groundwater_error_figure(error_message):
     fig = go.Figure()
+
     fig.update_layout(
         title="Groundwater plot could not be loaded",
         template="plotly_white",
         height=550
     )
+
     fig.add_annotation(
         text=f"Error: {error_message}",
         xref="paper",
@@ -297,4 +468,5 @@ def make_groundwater_error_figure(error_message):
         font=dict(size=16, color="red"),
         align="center"
     )
+
     return fig

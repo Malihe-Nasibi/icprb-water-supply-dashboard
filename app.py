@@ -106,15 +106,30 @@ app.layout = html.Div(
                 "boxSizing": "border-box"
             },
             children=[
-                html.H1(
-                    "Water Supply Outlook Dashboard",
+                html.Div(
                     style={
-                        "textAlign": "center",
-                        "fontSize": "34px",
-                        "fontWeight": "bold",
-                        "margin": "0px",
-                        "color": "#1f2d3d"
-                    }
+                        "textAlign": "center"
+                    },
+                    children=[
+                        html.Div(
+                            "Interstate Commission on the Potomac River Basin",
+                            style={
+                                "fontSize": "34px",
+                                "fontWeight": "bold",
+                                "color": "#1f2d3d",
+                                "marginBottom": "4px"
+                            }
+                        ),
+                        html.H1(
+                            "Water Supply Outlook Dashboard",
+                            style={
+                                "fontSize": "34px",
+                                "fontWeight": "bold",
+                                "margin": "0px",
+                                "color": "#1f2d3d"
+                            }
+                        )
+                    ]
                 )
             ]
         ),

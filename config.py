@@ -162,7 +162,7 @@ RESERVOIR_TREAT_ZERO_AS_MISSING = True
 
 RESERVOIR_STORAGE_COLUMNS = {
     "WSSC - Patuxent reservoirs current usable storage (BG)": "Patuxent reservoirs",
-    "WSSC - Little Reservoir current usable storage (BG)": "Little Reservoir",
+    "WSSC - Little Reservoir current usable storage (BG)": "Little Seneca Reservoir",
     "FW - Occoquan Reservoir current usable storage (BG)": "Occoquan Reservoir",
     "USACE - Jennings Randolph Reservoir current usable storage (BG)": "Jennings Randolph current usable storage",
     "USACE - Jennings Randolph Reservoir water supply storage (BG)": "Jennings Randolph water supply storage",
