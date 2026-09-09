@@ -6,6 +6,7 @@ figure using prepared reservoir data from data_fetching/reservoir.py.
 """
 
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 from dash import html
 
@@ -29,6 +30,7 @@ def reservoir_latest_cards(df):
                 latest_text = "No data"
                 date_text = ""
             else:
+                valid = valid.sort_values("Date")
                 latest_row = valid.iloc[-1]
                 latest_text = f"{latest_row[column]:.2f} BG"
                 date_text = latest_row["Date"].strftime("%b %d, %Y")
@@ -87,6 +89,35 @@ def reservoir_latest_cards(df):
 
 # Reservoir storage figure
 
+def add_missing_daily_dates(df):
+    """
+    Add missing daily dates to the reservoir dataframe.
+
+    This makes Plotly show a visible gap in the line when data are missing,
+    instead of connecting across missing dates.
+    """
+
+    df = df.copy()
+    df["Date"] = pd.to_datetime(df["Date"])
+    df = df.sort_values("Date")
+
+    full_date_range = pd.date_range(
+        start=df["Date"].min(),
+        end=df["Date"].max(),
+        freq="D"
+    )
+
+    df = (
+        df
+        .set_index("Date")
+        .reindex(full_date_range)
+        .rename_axis("Date")
+        .reset_index()
+    )
+
+    return df
+
+
 def build_reservoir_storage_figure(selected_column):
     df = load_reservoir_storage()
     available_columns = get_available_reservoir_columns(df)
@@ -98,6 +129,10 @@ def build_reservoir_storage_figure(selected_column):
         selected_column = available_columns[0]
 
     label = RESERVOIR_STORAGE_COLUMNS[selected_column]
+
+    # Add missing dates
+    df = add_missing_daily_dates(df)
+
     y = df[selected_column]
 
     valid = df[["Date", selected_column]].dropna().copy()
@@ -105,6 +140,7 @@ def build_reservoir_storage_figure(selected_column):
     if valid.empty:
         raise ValueError(f"No valid storage values are available for {label}.")
 
+    valid = valid.sort_values("Date")
     latest = valid.iloc[-1]
     latest_date = latest["Date"]
     latest_value = latest[selected_column]
@@ -122,21 +158,6 @@ def build_reservoir_storage_figure(selected_column):
             connectgaps=False,
             hovertemplate=(
                 "<b>Date:</b> %{x|%b %d, %Y}<br>"
-                "<b>Storage:</b> %{y:.2f} BG"
-                "<extra></extra>"
-            )
-        )
-    )
-
-    fig.add_trace(
-        go.Scatter(
-            x=[latest_date],
-            y=[latest_value],
-            mode="markers",
-            name=f"Latest value ({latest_value:.2f} BG)",
-            marker=dict(size=12, color="red"),
-            hovertemplate=(
-                "<b>Latest:</b> %{x|%b %d, %Y}<br>"
                 "<b>Storage:</b> %{y:.2f} BG"
                 "<extra></extra>"
             )
@@ -192,11 +213,13 @@ def build_reservoir_storage_figure(selected_column):
 
 def make_reservoir_error_figure(error_message):
     fig = go.Figure()
+
     fig.update_layout(
         title="Reservoir storage plot could not be loaded",
         template="plotly_white",
         height=540
     )
+
     fig.add_annotation(
         text=f"Error: {error_message}",
         xref="paper",
@@ -207,4 +230,5 @@ def make_reservoir_error_figure(error_message):
         font=dict(size=16, color="red"),
         align="center"
     )
+
     return fig

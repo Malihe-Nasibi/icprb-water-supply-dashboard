@@ -90,15 +90,141 @@ def add_potomac_basin_boundary_to_map(fig):
     return fig
 
 
+# Groundwater condition helpers
+
+def groundwater_condition_color(percentile):
+    """
+    Return marker color based on groundwater depth-to-water percentile.
+
+    For depth-to-water, larger depth means lower/drier groundwater conditions.
+    Therefore, low depth percentiles are better/wetter and high depth percentiles
+    are worse/drier.
+    """
+
+    if percentile is None or pd.isna(percentile):
+        return "lightgray"
+
+    if percentile <= 25:
+        return "#5BA061"   
+    elif percentile <= 50:
+        return "#E6B800"   
+    elif percentile <= 75:
+        return "#E07B39"   
+    else:
+        return "#C00000"
+
+
+def groundwater_condition_label(percentile):
+    """
+    Return condition label based on groundwater depth-to-water percentile.
+    """
+
+    if percentile is None or pd.isna(percentile):
+        return "Not available"
+
+    if percentile <= 25:
+        return "High groundwater / wetter than normal"
+    elif percentile <= 50:
+        return "Near normal"
+    elif percentile <= 75:
+        return "Below normal / dry"
+    else:
+        return "Low groundwater / much drier than normal"
+
+
+def calculate_current_groundwater_percentile(well_name):
+    """
+    Calculate the latest groundwater depth percentile for one well.
+
+    The latest depth is compared against historical values from the same month.
+    This avoids comparing, for example, August groundwater levels with winter
+    groundwater levels.
+    """
+
+    try:
+        df, source_type = load_groundwater_record(well_name)
+
+        if df.empty:
+            return None, None, None, None
+
+        df = df.dropna(subset=["Date", "Depth_ft"]).copy()
+
+        if df.empty:
+            return None, None, None, None
+
+        latest = df.loc[df["Date"].idxmax()]
+        latest_date = latest["Date"]
+        latest_depth = latest["Depth_ft"]
+        latest_month = latest_date.month
+
+        same_month_values = df.loc[
+            df["Date"].dt.month == latest_month,
+            "Depth_ft"
+        ].dropna()
+
+        if same_month_values.empty:
+            return latest_date, latest_depth, None, source_type
+
+        percentile = (
+            (same_month_values <= latest_depth).sum()
+            / len(same_month_values)
+            * 100.0
+        )
+
+        return latest_date, latest_depth, percentile, source_type
+
+    except Exception as e:
+        print(f"Groundwater percentile calculation error for {well_name}: {e}")
+        return None, None, None, None
+
+
+def add_groundwater_conditions_to_metadata(metadata):
+    """
+    Add latest groundwater depth, percentile, condition, and color to the
+    groundwater well metadata table.
+    """
+
+    metadata = metadata.copy()
+
+    latest_dates = []
+    latest_depths = []
+    percentiles = []
+    conditions = []
+    colors = []
+
+    for well_name in metadata["Well_Name"]:
+        latest_date, latest_depth, percentile, source_type = calculate_current_groundwater_percentile(well_name)
+
+        latest_dates.append(latest_date)
+        latest_depths.append(latest_depth)
+        percentiles.append(percentile)
+        conditions.append(groundwater_condition_label(percentile))
+        colors.append(groundwater_condition_color(percentile))
+
+    metadata["Latest_Date"] = latest_dates
+    metadata["Latest_Depth_ft"] = latest_depths
+    metadata["Current_Percentile"] = percentiles
+    metadata["Condition"] = conditions
+    metadata["Marker_Color"] = colors
+
+    return metadata
+
+
 # Groundwater well map
 
 def build_groundwater_well_map(selected_well=None):
     """
     Build a clickable groundwater well-location map.
 
-    Hovering over a well shows the well name, site ID, latitude, and longitude.
-    Clicking a well updates the groundwater plot through the dashboard callback.
-    The Potomac Basin boundary is included for spatial context.
+    Wells are colored by current groundwater depth-to-water percentile.
+    Because larger depth means lower/drier groundwater conditions, the color
+    interpretation is reversed:
+        <= 25th percentile   = green
+        25th-50th percentile = yellow
+        50th-75th percentile = orange
+        > 75th percentile    = red
+
+    The selected well is shown as a larger marker.
     """
 
     metadata = load_groundwater_well_metadata()
@@ -106,61 +232,133 @@ def build_groundwater_well_map(selected_well=None):
     if selected_well is None or selected_well not in metadata["Well_Name"].values:
         selected_well = "VA51S7"
 
-    metadata["Marker_Color"] = np.where(
-        metadata["Well_Name"] == selected_well,
-        "yellow",
-        "royalblue"
-    )
+    metadata = add_groundwater_conditions_to_metadata(metadata)
 
     fig = go.Figure()
 
     # Add Potomac Basin boundary first so groundwater wells are plotted on top.
     fig = add_potomac_basin_boundary_to_map(fig)
 
-    fig.add_trace(
-        go.Scattermapbox(
-            lon=metadata["Longitude"],
-            lat=metadata["Latitude"],
-            mode="markers",
-            name="Groundwater Wells",
-            text=metadata["Well_Name"],
-            customdata=np.stack(
-                (
-                    metadata["Well_Name"],
-                    metadata["Site_ID"],
-                    metadata["Latitude"],
-                    metadata["Longitude"]
+    # Add groundwater wells by condition group.
+    condition_groups = [
+        {
+            "name": "≤ 25th percentile",
+            "color": "#5BA061",
+            "filter": metadata["Current_Percentile"] <= 25
+        },
+        {
+            "name": "25th–50th percentile",
+            "color": "#E6B800",
+            "filter": (metadata["Current_Percentile"] > 25) & (metadata["Current_Percentile"] <= 50)
+        },
+        {
+            "name": "50th–75th percentile",
+            "color": "#E07B39",
+            "filter": (metadata["Current_Percentile"] > 50) & (metadata["Current_Percentile"] <= 75)
+        },
+        {
+            "name": "> 75th percentile",
+            "color": "#C00000",
+            "filter": metadata["Current_Percentile"] > 75
+        },
+        {
+            "name": "No current condition",
+            "color": "lightgray",
+            "filter": metadata["Current_Percentile"].isna()
+        }
+    ]
+
+    for group in condition_groups:
+        df_group = metadata[group["filter"]].copy()
+
+        if df_group.empty:
+            continue
+
+        fig.add_trace(
+            go.Scattermapbox(
+                lon=df_group["Longitude"],
+                lat=df_group["Latitude"],
+                mode="markers",
+                name=group["name"],
+                text=df_group["Well_Name"],
+                customdata=np.stack(
+                    (
+                        df_group["Well_Name"],
+                        df_group["Site_ID"],
+                        df_group["Latitude"],
+                        df_group["Longitude"]
+                    ),
+                    axis=-1
                 ),
-                axis=-1
-            ),
-            marker=dict(
-                size=15,
-                color=metadata["Marker_Color"],
-                opacity=0.9
-            ),
-            hoverlabel=dict(
-                font_size=16,
-                font_family="Arial",
-                bgcolor="white"
-            ),
-            hovertemplate=(
-                "<b>Well:</b> %{customdata[0]}<br>"
-                "<b>Site ID:</b> %{customdata[1]}<br>"
-                "<b>Latitude:</b> %{customdata[2]:.4f}<br>"
-                "<b>Longitude:</b> %{customdata[3]:.4f}"
-                "<extra></extra>"
+                marker=dict(
+                    size=15,
+                    color=group["color"],
+                    opacity=0.9
+                ),
+                hoverlabel=dict(
+                    font_size=16,
+                    font_family="Arial",
+                    bgcolor="white"
+                ),
+                hovertemplate=(
+                    "<b>Well:</b> %{customdata[0]}<br>"
+                    "<b>Site ID:</b> %{customdata[1]}<br>"
+                    "<b>Latitude:</b> %{customdata[2]:.4f}<br>"
+                    "<b>Longitude:</b> %{customdata[3]:.4f}"
+                    "<extra></extra>"
+                )
             )
         )
-    )
+
+    # Add selected well again on top as a larger marker.
+    selected_metadata = metadata[metadata["Well_Name"] == selected_well].copy()
+
+    if not selected_metadata.empty:
+        fig.add_trace(
+            go.Scattermapbox(
+                lon=selected_metadata["Longitude"],
+                lat=selected_metadata["Latitude"],
+                mode="markers",
+                name="Selected well",
+                text=selected_metadata["Well_Name"],
+                customdata=np.stack(
+                    (
+                        selected_metadata["Well_Name"],
+                        selected_metadata["Site_ID"],
+                        selected_metadata["Latitude"],
+                        selected_metadata["Longitude"]
+                    ),
+                    axis=-1
+                ),
+                marker=dict(
+                    size=24,
+                    color=selected_metadata["Marker_Color"].iloc[0],
+                    opacity=1.0
+                ),
+                showlegend=False,
+                hoverlabel=dict(
+                    font_size=16,
+                    font_family="Arial",
+                    bgcolor="white"
+                ),
+                hovertemplate=(
+                    "<b>Well:</b> %{customdata[0]}<br>"
+                    "<b>Site ID:</b> %{customdata[1]}<br>"
+                    "<b>Latitude:</b> %{customdata[2]:.4f}<br>"
+                    "<b>Longitude:</b> %{customdata[3]:.4f}"
+                    "<extra></extra>"
+                )
+            )
+        )
 
     fig.update_layout(
         mapbox=dict(
-            style="open-street-map",
+            style="carto-positron",
             center=dict(
                 lat=39.0,
                 lon=-78.1
             ),
-            zoom=6.6
+            zoom=6.5
         ),
         template="plotly_white",
         height=600,
@@ -170,10 +368,10 @@ def build_groundwater_well_map(selected_well=None):
             y=0.99,
             xanchor="left",
             yanchor="top",
-            bgcolor="rgba(255,255,255,0.85)",
+            bgcolor="rgba(255,255,255,0.88)",
             bordercolor="lightgray",
             borderwidth=1,
-            font=dict(size=13, color="black")
+            font=dict(size=12, color="black")
         ),
         margin=dict(l=10, r=10, t=10, b=10)
     )
