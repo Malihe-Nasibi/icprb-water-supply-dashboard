@@ -353,12 +353,12 @@ def build_groundwater_well_map(selected_well=None):
 
     fig.update_layout(
         mapbox=dict(
-            style="carto-positron",
+            style="open-street-map",
             center=dict(
                 lat=39.0,
                 lon=-78.1
             ),
-            zoom=6.5
+            zoom=6.7
         ),
         template="plotly_white",
         height=600,
