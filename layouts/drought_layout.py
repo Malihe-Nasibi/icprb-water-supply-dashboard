@@ -161,7 +161,7 @@ def drought_monitor_layout():
                                 children=potomac_map_children
                             ),
                             html.P(
-                                "Source: U.S. Drought Monitor current GeoJSON with USGS WBD HUC8 basin/subbasin boundaries.",
+                                "Source: U.S. Drought Monitor.",
                                 style={
                                     "textAlign": "center",
                                     "fontSize": "14px",

@@ -358,7 +358,7 @@ def build_groundwater_well_map(selected_well=None):
                 lat=39.0,
                 lon=-78.1
             ),
-            zoom=6.7
+            zoom=6.8
         ),
         template="plotly_white",
         height=600,

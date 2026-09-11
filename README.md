@@ -2,7 +2,7 @@
 
 
 
-This repository contains a Python Dash dashboard for visualizing water supply and drought-related indicators for the Potomac River Basin.
+This repository contains a Python Dash dashboard developed for visualizing water supply and drought-related indicators for the Potomac River Basin.
 
 
 
@@ -10,9 +10,13 @@ This repository contains a Python Dash dashboard for visualizing water supply an
 
 
 
-\- Streamflow
+\- Home
 
-\- Flow Forecasts
+\- Historical Streamflow
+
+\- Streamflow Forecast
+
+\- Precipitation
 
 \- Groundwater
 
@@ -20,9 +24,8 @@ This repository contains a Python Dash dashboard for visualizing water supply an
 
 \- Reservoir Storage
 
-\- NOAA Outlooks
+\- Climate Outlooks
 
-\- Precipitation
 
 
 
@@ -30,17 +33,17 @@ This repository contains a Python Dash dashboard for visualizing water supply an
 
 
 
-The dashboard uses public hydrologic, drought, and forecast data sources, including:
+The dashboard uses a combination of public data sources, local data files, including:
 
 
 
-\- USGS daily streamflow data
+\- USGS Water Data for observed streamflow
 
-\- USGS groundwater observations
+\- USGS Water Data for groundwater observations
 
-\- NOAA/NWPS stageflow forecast data
+\- NOAA/NWPS streamflow forecast data
 
-\- MARFC ensemble forecast images
+\- MARFC ensemble forecast products
 
 \- U.S. Drought Monitor products
 
@@ -62,17 +65,21 @@ config.py
 
 styles.py
 
+requirements.txt
+
+Procfile
+
+assets/
+
 data/
 
-data\_fetching/
+data_fetching/
 
 figures/
 
 layouts/
 
-requirements.txt
 
-Procfile
 
 ```
 
