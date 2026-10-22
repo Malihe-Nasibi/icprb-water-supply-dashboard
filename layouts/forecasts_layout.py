@@ -92,8 +92,6 @@ def marfc_ensemble_image_panel(selected_station_id, selected_model):
 # NOAA/NWPS official forecast panel
 
 def nwps_official_forecast_panel(selected_station_id):
-    station = FLOW_FORECAST_STATIONS[selected_station_id]
-
     return html.Div(
         style={
             "backgroundColor": "white",
@@ -104,27 +102,33 @@ def nwps_official_forecast_panel(selected_station_id):
             "border": "1px solid #e1e7ef"
         },
         children=[
-            html.H3(
-                "NOAA/NWPS Official Forecast",
+            # Enlarge the interactive NOAA/NWPS graph
+            html.Div(
                 style={
-                    "textAlign": "center",
-                    "fontSize": "24px",
-                    "fontWeight": "bold",
-                    "marginTop": "0px",
-                    "marginBottom": "6px",
-                    "color": "#1f2d3d"
-                }
-            ),
-            html.P(
-                f"{station['subtitle']}",
-                style={
-                    "textAlign": "center",
-                    "fontSize": "15px",
-                    "fontWeight": "bold",
-                    "color": "#44546a",
-                    "marginTop": "0px",
+                    "textAlign": "right",
                     "marginBottom": "6px"
-                }
+                },
+                children=[
+                    html.Button(
+                        "Enlarge ↗",
+                        id={
+                            "type": "enlarge-content",
+                            "group": "graph",
+                            "index": "nwps-official-forecast-graph"
+                        },
+                        n_clicks=0,
+                        style={
+                            "fontSize": "15px",
+                            "fontWeight": "bold",
+                            "color": "#1f4e79",
+                            "backgroundColor": "white",
+                            "border": "1px solid #c7d4e3",
+                            "borderRadius": "6px",
+                            "padding": "6px 10px",
+                            "cursor": "pointer"
+                        }
+                    )
+                ]
             ),
             dcc.Graph(
                 id="nwps-official-forecast-graph",
@@ -177,17 +181,22 @@ def flow_forecasts_layout():
                 ]
             ),
             html.Div(
+                className="forecast-controls",
                 style={
                     "display": "flex",
-                    "gap": "20px",
-                    "flexWrap": "wrap",
-                    "marginBottom": "22px"
+                    "justifyContent": "center",
+                    "gap": "clamp(6px, 1vw, 12px)",
+                    "flexWrap": "nowrap",
+                    "marginBottom": "12px"
                 },
                 children=[
                     html.Div(
                         style={
-                            "width": "420px",
-                            "padding": "14px",
+                            "flex": "420 1 0",
+                            "minWidth": "0",
+                            "maxWidth": "420px",
+                            "padding": "clamp(6px, 1vw, 10px)",
+                            "boxSizing": "border-box",
                             "backgroundColor": "white",
                             "borderRadius": "12px",
                             "boxShadow": "0px 1px 5px rgba(0,0,0,0.18)"
@@ -206,14 +215,17 @@ def flow_forecasts_layout():
                                 ],
                                 value="BRKM2",
                                 clearable=False,
-                                style={"marginTop": "8px"}
+                                style={"width": "100%", "minWidth": "0"}
                             )
                         ]
                     ),
                     html.Div(
                         style={
-                            "width": "320px",
-                            "padding": "14px",
+                            "flex": "320 1 0",
+                            "minWidth": "0",
+                            "maxWidth": "320px",
+                            "padding": "clamp(6px, 1vw, 10px)",
+                            "boxSizing": "border-box",
                             "backgroundColor": "white",
                             "borderRadius": "12px",
                             "boxShadow": "0px 1px 5px rgba(0,0,0,0.18)"
@@ -232,7 +244,7 @@ def flow_forecasts_layout():
                                 ],
                                 value="NWPS",
                                 clearable=False,
-                                style={"marginTop": "8px"}
+                                style={"width": "100%", "minWidth": "0"}
                             )
                         ]
                     )

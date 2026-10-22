@@ -44,6 +44,22 @@ DROPDOWN_CSS = """
     font-size: 21px !important;
     font-weight: 800 !important;
 }
+
+/* Streamflow, forecast, and reservoir dropdown styles */
+
+.streamflow-controls > div > label,
+.forecast-controls > div > label {
+    font-size: clamp(16px, 1.5vw, 20px) !important;
+}
+
+.streamflow-controls .dashboard-dropdown,
+.streamflow-controls .dashboard-dropdown *,
+.forecast-controls .dashboard-dropdown,
+.forecast-controls .dashboard-dropdown *,
+.reservoir-controls .dashboard-dropdown,
+.reservoir-controls .dashboard-dropdown * {
+    font-size: clamp(16px, 1.5vw, 21px) !important;
+}
 """
 
 

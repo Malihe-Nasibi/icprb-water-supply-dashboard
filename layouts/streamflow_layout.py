@@ -16,18 +16,22 @@ def streamflow_layout():
     return html.Div(
         children=[
             html.Div(
+                className="streamflow-controls",
                 style={
                     "display": "flex",
                     "justifyContent": "center",
-                    "gap": "20px",
-                    "marginBottom": "20px",
-                    "flexWrap": "wrap"
+                    "gap": "clamp(6px, 1vw, 12px)",
+                    "marginBottom": "12px",
+                    "flexWrap": "nowrap"
                 },
                 children=[
                     html.Div(
                         style={
-                            "width": "360px",
-                            "padding": "12px",
+                            "flex": "360 1 0",
+                            "minWidth": "0",
+                            "maxWidth": "360px",
+                            "padding": "clamp(6px, 1vw, 10px)",
+                            "boxSizing": "border-box",
                             "backgroundColor": "white",
                             "borderRadius": "10px",
                             "boxShadow": "0px 1px 4px rgba(0,0,0,0.15)"
@@ -45,14 +49,18 @@ def streamflow_layout():
                                     for site_id, station_name in STATIONS.items()
                                 ],
                                 value=list(STATIONS.keys())[0],
-                                clearable=False
+                                clearable=False,
+                                style={"width": "100%", "minWidth": "0"}
                             )
                         ]
                     ),
                     html.Div(
                         style={
-                            "width": "250px",
-                            "padding": "12px",
+                            "flex": "250 1 0",
+                            "minWidth": "0",
+                            "maxWidth": "250px",
+                            "padding": "clamp(6px, 1vw, 10px)",
+                            "boxSizing": "border-box",
                             "backgroundColor": "white",
                             "borderRadius": "10px",
                             "boxShadow": "0px 1px 4px rgba(0,0,0,0.15)"
@@ -62,14 +70,18 @@ def streamflow_layout():
                             dcc.Dropdown(
                                 className=DROPDOWN_CLASS_NAME,
                                 id="year-dropdown",
-                                clearable=False
+                                clearable=False,
+                                style={"width": "100%", "minWidth": "0"}
                             )
                         ]
                     ),
                     html.Div(
                         style={
-                            "width": "300px",
-                            "padding": "12px",
+                            "flex": "300 1 0",
+                            "minWidth": "0",
+                            "maxWidth": "300px",
+                            "padding": "clamp(6px, 1vw, 10px)",
+                            "boxSizing": "border-box",
                             "backgroundColor": "white",
                             "borderRadius": "10px",
                             "boxShadow": "0px 1px 4px rgba(0,0,0,0.15)"
@@ -84,9 +96,39 @@ def streamflow_layout():
                                     {"label": "7-day average flow", "value": "7day"}
                                 ],
                                 value="daily",
-                                clearable=False
+                                clearable=False,
+                                style={"width": "100%", "minWidth": "0"}
                             )
                         ]
+                    )
+                ]
+            ),
+
+            # Enlarge the interactive streamflow graph
+            html.Div(
+                style={
+                    "textAlign": "right",
+                    "marginBottom": "6px"
+                },
+                children=[
+                    html.Button(
+                        "Enlarge ↗",
+                        id={
+                            "type": "enlarge-content",
+                            "group": "graph",
+                            "index": "streamflow-graph"
+                        },
+                        n_clicks=0,
+                        style={
+                            "fontSize": "15px",
+                            "fontWeight": "bold",
+                            "color": "#1f4e79",
+                            "backgroundColor": "white",
+                            "border": "1px solid #c7d4e3",
+                            "borderRadius": "6px",
+                            "padding": "6px 10px",
+                            "cursor": "pointer"
+                        }
                     )
                 ]
             ),

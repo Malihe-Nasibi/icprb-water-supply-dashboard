@@ -44,13 +44,29 @@ def precipitation_layout():
             ),
             html.Div(
                 style={
-                    "display": "flex",
-                    "gap": "22px",
-                    "flexWrap": "wrap",
-                    "alignItems": "flex-start"
+                    "display": "grid",
+                    "gridTemplateColumns": "repeat(auto-fit, minmax(min(100%, 500px), 1fr))",
+                    "gap": "12px",
+                    "alignItems": "start",
+                    "justifyItems": "center",
+                    "width": "100%",
+                    "maxWidth": "1300px",
+                    "margin": "0 auto"
                 },
                 children=[
-                    image_card(item, "precipitation", index)
+                    image_card(
+                        item,
+                        "precipitation",
+                        index,
+                        card_style={
+                            "width": "100%",
+                            "maxWidth": "644px",
+                            "minWidth": "0",
+                            "boxSizing": "border-box",
+                            "padding": "12px",
+                            "marginBottom": "0px"
+                        }
+                    )
                     for index, item in enumerate(PRECIPITATION_IMAGES)
                 ]
             )

@@ -41,16 +41,19 @@ def reservoir_latest_cards(df):
                     "backgroundColor": "white",
                     "borderRadius": "12px",
                     "boxShadow": "0px 1px 5px rgba(0,0,0,0.15)",
-                    "padding": "14px",
+                    "padding": "12px",
                     "border": "1px solid #e1e7ef",
-                    "minHeight": "105px"
+                    "minHeight": "105px",
+                    "minWidth": "0",
+                    "boxSizing": "border-box",
+                    "overflowWrap": "break-word"
                 },
                 children=[
                     html.Div(
                         label,
                         style={
                             "fontWeight": "bold",
-                            "fontSize": "19px",
+                            "fontSize": "clamp(16px, 1.3vw, 19px)",
                             "color": "#1f2d3d",
                             "marginBottom": "8px"
                         }
@@ -58,7 +61,7 @@ def reservoir_latest_cards(df):
                     html.Div(
                         latest_text,
                         style={
-                            "fontSize": "24px",
+                            "fontSize": "clamp(20px, 1.7vw, 24px)",
                             "fontWeight": "bold",
                             "color": "#0f3b63"
                         }
@@ -66,7 +69,7 @@ def reservoir_latest_cards(df):
                     html.Div(
                         date_text,
                         style={
-                            "fontSize": "17px",
+                            "fontSize": "clamp(14px, 1.2vw, 17px)",
                             "fontWeight": "bold",
                             "color": "gray",
                             "marginTop": "4px"
@@ -79,9 +82,12 @@ def reservoir_latest_cards(df):
     return html.Div(
         style={
             "display": "grid",
-            "gridTemplateColumns": "repeat(auto-fit, minmax(230px, 1fr))",
-            "gap": "14px",
-            "marginBottom": "22px"
+            "gridAutoFlow": "column",
+            "gridAutoColumns": "minmax(200px, 1fr)",
+            "gap": "12px",
+            "overflowX": "auto",
+            "paddingBottom": "6px",
+            "marginBottom": "12px"
         },
         children=cards
     )

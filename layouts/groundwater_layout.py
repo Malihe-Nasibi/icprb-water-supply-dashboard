@@ -66,6 +66,35 @@ def groundwater_layout():
                     "border": "1px solid #e1e7ef"
                 },
                 children=[
+                    # Enlarge the combined groundwater plots
+                    html.Div(
+                        style={
+                            "textAlign": "right",
+                            "marginBottom": "6px"
+                        },
+                        children=[
+                            html.Button(
+                                "Enlarge ↗",
+                                id={
+                                    "type": "enlarge-content",
+                                    "group": "graph",
+                                    "index": "groundwater-graph"
+                                },
+                                n_clicks=0,
+                                style={
+                                    "fontSize": "15px",
+                                    "fontWeight": "bold",
+                                    "color": "#1f4e79",
+                                    "backgroundColor": "white",
+                                    "border": "1px solid #c7d4e3",
+                                    "borderRadius": "6px",
+                                    "padding": "6px 10px",
+                                    "cursor": "pointer"
+                                }
+                            )
+                        ]
+                    ),
+
                     dcc.Graph(
                         id="groundwater-graph",
                         config={"displaylogo": False}

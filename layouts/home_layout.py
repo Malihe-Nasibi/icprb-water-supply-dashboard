@@ -25,7 +25,7 @@ CARD_STYLE = {
     "borderRadius": "14px",
     "boxShadow": "0px 2px 7px rgba(0,0,0,0.16)",
     "border": "1px solid #e1e7ef",
-    "padding": "12px",
+    "padding": "10px",
     "boxSizing": "border-box"
 }
 
@@ -47,7 +47,7 @@ TABLE_STYLE = {
 TH_STYLE = {
     "backgroundColor": "#e7eef6",
     "border": "1px solid #c7d4e3",
-    "padding": "9px",
+    "padding": "8px",
     "textAlign": "center",
     "fontWeight": "bold",
     "fontSize": "14px"
@@ -55,7 +55,7 @@ TH_STYLE = {
 
 TD_STYLE = {
     "border": "1px solid #c7d4e3",
-    "padding": "9px",
+    "padding": "8px",
     "textAlign": "center",
     "fontSize": "15px"
 }
@@ -81,8 +81,17 @@ def build_home_drought_preview():
         )
 
     return html.Img(
+        id={
+            "type": "enlarge-content",
+            "group": "home-image",
+            "index": "drought"
+        },
+        n_clicks=0,
         src=image_src,
-        style=IMAGE_STYLE
+        style={
+            **IMAGE_STYLE,
+            "cursor": "pointer"
+        }
     )
 
 
@@ -100,7 +109,7 @@ def low_flow_probability_table():
                     "textAlign": "center",
                     "color": "#1f2d3d",
                     "marginTop": "0px",
-                    "marginBottom": "10px",
+                    "marginBottom": "8px",
                     "lineHeight": "1.3"
                 }
             ),
@@ -223,13 +232,13 @@ def reservoir_storage_status_table():
 
     def bar_color(percent):
         if percent <= 50:
-            return "#C00000"   # red
+            return "#C00000"
         elif percent <= 70:
-            return "#E07B39"   # orange
+            return "#E07B39"
         elif percent <= 90:
-            return "#E6B800"   # yellow
+            return "#E6B800"
         else:
-            return "#5BA061"   # green
+            return "#5BA061"
 
     return html.Div(
         style=CARD_STYLE,
@@ -242,7 +251,7 @@ def reservoir_storage_status_table():
                     "textAlign": "center",
                     "color": "#1f2d3d",
                     "marginTop": "0px",
-                    "marginBottom": "10px"
+                    "marginBottom": "8px"
                 }
             ),
             html.Table(
@@ -303,7 +312,7 @@ def home_layout():
             html.Div(
                 style={
                     "backgroundColor": "white",
-                    "padding": "20px",
+                    "padding": "14px",
                     "borderRadius": "16px",
                     "boxShadow": "0px 3px 9px rgba(0,0,0,0.18)",
                     "border": "1px solid #e1e7ef"
@@ -319,7 +328,7 @@ def home_layout():
                             "fontSize": "18px",
                             "lineHeight": "1.45",
                             "color": "#1f2d3d",
-                            "margin": "0 0 14px 0",
+                            "margin": "0 0 12px 0",
                             "textAlign": "justify"
                         }
                     ),
@@ -330,8 +339,8 @@ def home_layout():
                             "backgroundColor": "#eaf3fb",
                             "border": "1px solid #c7d4e3",
                             "borderRadius": "12px",
-                            "padding": "14px 18px",
-                            "marginBottom": "18px"
+                            "padding": "10px 14px",
+                            "marginBottom": "12px"
                         },
                         children=[
                             html.Div(
@@ -351,20 +360,38 @@ def home_layout():
                     html.Div(
                         style={
                             "display": "grid",
-                            "gridTemplateColumns": "1fr 1fr",
-                            "gap": "18px",
+                            "gridTemplateColumns": "repeat(auto-fit, minmax(min(100%, 450px), 1fr))",
+                            "gap": "12px",
                             "alignItems": "center",
-                            "marginBottom": "18px"
+                            "marginBottom": "12px"
                         },
                         children=[
-                            low_flow_probability_table(),
+                            html.Div(
+                                id={
+                                    "type": "enlarge-content",
+                                    "group": "home-table",
+                                    "index": "low-flow"
+                                },
+                                n_clicks=0,
+                                style={"cursor": "pointer"},
+                                children=low_flow_probability_table()
+                            ),
 
                             html.Div(
                                 style=CARD_STYLE,
                                 children=[
                                     html.Img(
+                                        id={
+                                            "type": "enlarge-content",
+                                            "group": "home-image",
+                                            "index": "precipitation"
+                                        },
+                                        n_clicks=0,
                                         src=PRECIPITATION_12_MONTH_IMAGE,
-                                        style=IMAGE_STYLE
+                                        style={
+                                            **IMAGE_STYLE,
+                                            "cursor": "pointer"
+                                        }
                                     )
                                 ]
                             )
@@ -375,18 +402,27 @@ def home_layout():
                     html.Div(
                         style={
                             "display": "grid",
-                            "gridTemplateColumns": "1fr 1fr",
-                            "gap": "18px",
+                            "gridTemplateColumns": "repeat(auto-fit, minmax(min(100%, 450px), 1fr))",
+                            "gap": "12px",
                             "alignItems": "center",
-                            "marginBottom": "18px"
+                            "marginBottom": "12px"
                         },
                         children=[
                             html.Div(
                                 style=CARD_STYLE,
                                 children=[
                                     html.Img(
+                                        id={
+                                            "type": "enlarge-content",
+                                            "group": "home-image",
+                                            "index": "adjusted-flow"
+                                        },
+                                        n_clicks=0,
                                         src=ADJUSTED_FLOW_IMAGE,
-                                        style=IMAGE_STYLE
+                                        style={
+                                            **IMAGE_STYLE,
+                                            "cursor": "pointer"
+                                        }
                                     )
                                 ]
                             ),
@@ -404,8 +440,8 @@ def home_layout():
                     html.Div(
                         style={
                             "display": "grid",
-                            "gridTemplateColumns": "1fr 1fr",
-                            "gap": "18px",
+                            "gridTemplateColumns": "repeat(auto-fit, minmax(min(100%, 450px), 1fr))",
+                            "gap": "12px",
                             "alignItems": "center"
                         },
                         children=[
@@ -413,13 +449,31 @@ def home_layout():
                                 style=CARD_STYLE,
                                 children=[
                                     html.Img(
+                                        id={
+                                            "type": "enlarge-content",
+                                            "group": "home-image",
+                                            "index": "groundwater"
+                                        },
+                                        n_clicks=0,
                                         src=GROUNDWATER_LEVELS_IMAGE,
-                                        style=IMAGE_STYLE
+                                        style={
+                                            **IMAGE_STYLE,
+                                            "cursor": "pointer"
+                                        }
                                     )
                                 ]
                             ),
 
-                            reservoir_storage_status_table()
+                            html.Div(
+                                id={
+                                    "type": "enlarge-content",
+                                    "group": "home-table",
+                                    "index": "reservoir"
+                                },
+                                n_clicks=0,
+                                style={"cursor": "pointer"},
+                                children=reservoir_storage_status_table()
+                            )
                         ]
                     )
                 ]

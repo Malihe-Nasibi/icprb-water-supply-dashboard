@@ -15,7 +15,7 @@ from config import NOAA_OUTLOOK_IMAGES
 
 # Outlook image card
 
-def image_card(item, group, index):
+def image_card(item, group, index, card_style=None):
     return html.Div(
         style={
             "backgroundColor": "white",
@@ -24,7 +24,8 @@ def image_card(item, group, index):
             "boxShadow": "0px 2px 7px rgba(0,0,0,0.18)",
             "marginBottom": "24px",
             "border": "1px solid #e1e7ef",
-            "width": "520px"
+            "width": "520px",
+            **(card_style or {})
         },
         children=[
             html.H3(
@@ -75,6 +76,11 @@ def image_card(item, group, index):
 
 def outlook_section(title, items, group, index_offset):
     return html.Div(
+        style={
+            "width": "100%",
+            "maxWidth": "1300px",
+            "margin": "0 auto"
+        },
         children=[
             html.H3(
                 title,
@@ -83,20 +89,34 @@ def outlook_section(title, items, group, index_offset):
                     "fontWeight": "bold",
                     "color": "#1f2d3d",
                     "marginTop": "8px",
-                    "marginBottom": "16px",
+                    "marginBottom": "12px",
                     "textAlign": "left"
                 }
             ),
             html.Div(
                 style={
-                    "display": "flex",
-                    "gap": "22px",
-                    "flexWrap": "wrap",
-                    "alignItems": "flex-start",
-                    "marginBottom": "10px"
+                    "display": "grid",
+                    "gridTemplateColumns": "repeat(auto-fit, minmax(min(100%, 500px), 1fr))",
+                    "gap": "12px",
+                    "alignItems": "start",
+                    "justifyItems": "center",
+                    "width": "100%",
+                    "marginBottom": "12px"
                 },
                 children=[
-                    image_card(item, group, index_offset + i)
+                    image_card(
+                        item,
+                        group,
+                        index_offset + i,
+                        card_style={
+                            "width": "100%",
+                            "maxWidth": "644px",
+                            "minWidth": "0",
+                            "boxSizing": "border-box",
+                            "padding": "12px",
+                            "marginBottom": "0px"
+                        }
+                    )
                     for i, item in enumerate(items)
                 ]
             )

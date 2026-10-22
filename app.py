@@ -20,7 +20,107 @@ app = Dash(__name__, suppress_callback_exceptions=True)
 server = app.server
 
 
-# CSS for dropdown labels and options
+# Dashboard layout styles
+
+LAYOUT_CSS = """
+.dashboard-page {
+    padding: 16px;
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 14px;
+}
+
+.dashboard-logo {
+    width: clamp(70px, 10vw, 110px);
+    height: auto;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.dashboard-heading {
+    min-width: 0;
+    text-align: center;
+}
+
+.dashboard-organization {
+    font-size: clamp(20px, 2.5vw, 34px);
+    font-weight: bold;
+    line-height: 1.2;
+    color: #1f2d3d;
+    margin-bottom: 4px;
+    overflow-wrap: break-word;
+}
+
+.dashboard-title {
+    font-size: clamp(22px, 2.5vw, 34px);
+    font-weight: bold;
+    line-height: 1.2;
+    margin: 0;
+    color: #1f2d3d;
+    overflow-wrap: break-word;
+}
+
+.dashboard-navigation {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0px 2px 7px rgba(0,0,0,0.16);
+    padding: 10px;
+    margin-bottom: 14px;
+}
+
+.dashboard-tabs {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    border: none !important;
+}
+
+.dashboard-tabs .dashboard-menu-tab {
+    flex: 1 1 160px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+@media (max-width: 600px) {
+    .dashboard-page {
+        padding: 10px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .dashboard-navigation {
+        padding: 8px;
+        margin-bottom: 12px;
+    }
+
+    .dashboard-tabs {
+        gap: 6px;
+    }
+
+    .dashboard-tabs .dashboard-menu-tab {
+        flex-basis: 130px !important;
+        font-size: 15px !important;
+        padding: 10px 8px !important;
+    }
+}
+"""
+
+
+# CSS for dropdown labels, options, and dashboard layout
 
 app.index_string = f"""
 <!DOCTYPE html>
@@ -32,6 +132,7 @@ app.index_string = f"""
         {{%css%}}
         <style>
         {DROPDOWN_CSS}
+        {LAYOUT_CSS}
         </style>
     </head>
     <body>
@@ -49,30 +150,29 @@ app.index_string = f"""
 # Dashboard menu styles
 
 MENU_TAB_STYLE = {
-    "width": "100%",
     "boxSizing": "border-box",
-    "padding": "17px 18px",
-    "margin": "0 auto 12px auto",
-    "borderRadius": "12px",
+    "padding": "12px 14px",
+    "margin": "0",
+    "borderRadius": "10px",
     "backgroundColor": "#e7eef6",
     "color": "#1f2d3d",
-    "fontSize": "20px",
+    "fontSize": "17px",
     "fontWeight": "bold",
     "border": "1px solid #c7d4e3",
     "boxShadow": "0px 3px 7px rgba(0,0,0,0.16)",
     "cursor": "pointer",
-    "textAlign": "center"
+    "textAlign": "center",
+    "lineHeight": "1.3"
 }
 
 MENU_TAB_SELECTED_STYLE = {
-    "width": "100%",
     "boxSizing": "border-box",
-    "padding": "17px 18px",
-    "margin": "0 auto 12px auto",
-    "borderRadius": "12px",
+    "padding": "12px 14px",
+    "margin": "0",
+    "borderRadius": "10px",
     "backgroundColor": "#1f4e79",
     "color": "white",
-    "fontSize": "20px",
+    "fontSize": "17px",
     "fontWeight": "900",
     "border": "1px solid #153650",
     "boxShadow": (
@@ -81,53 +181,39 @@ MENU_TAB_SELECTED_STYLE = {
         "0px 5px 10px rgba(0,0,0,0.24)"
     ),
     "cursor": "pointer",
-    "textAlign": "center"
+    "textAlign": "center",
+    "lineHeight": "1.3"
 }
 
 
 # Main app layout
 
 app.layout = html.Div(
+    className="dashboard-page",
     style={
         "fontFamily": "Arial",
         "backgroundColor": "#f7f9fb",
         "minHeight": "100vh",
-        "padding": "25px"
+        "boxSizing": "border-box"
     },
     children=[
         html.Div(
-            style={
-                "width": "100%",
-                "display": "flex",
-                "justifyContent": "center",
-                "alignItems": "center",
-                "marginBottom": "18px",
-                "paddingLeft": "334px",
-                "boxSizing": "border-box"
-            },
+            className="dashboard-header",
             children=[
+                html.Img(
+                    src="/assets/logos/icprb.jpg",
+                    className="dashboard-logo"
+                ),
                 html.Div(
-                    style={
-                        "textAlign": "center"
-                    },
+                    className="dashboard-heading",
                     children=[
                         html.Div(
                             "Interstate Commission on the Potomac River Basin",
-                            style={
-                                "fontSize": "34px",
-                                "fontWeight": "bold",
-                                "color": "#1f2d3d",
-                                "marginBottom": "4px"
-                            }
+                            className="dashboard-organization"
                         ),
                         html.H1(
                             "Water Supply Outlook Dashboard",
-                            style={
-                                "fontSize": "34px",
-                                "fontWeight": "bold",
-                                "margin": "0px",
-                                "color": "#1f2d3d"
-                            }
+                            className="dashboard-title"
                         )
                     ]
                 )
@@ -135,127 +221,96 @@ app.layout = html.Div(
         ),
 
         html.Div(
-            style={
-                "display": "flex",
-                "gap": "22px",
-                "alignItems": "flex-start"
-            },
+            className="dashboard-navigation",
             children=[
-                html.Div(
-                    style={
-                        "width": "290px",
-                        "backgroundColor": "white",
-                        "borderRadius": "16px",
-                        "boxShadow": "0px 4px 12px rgba(0,0,0,0.18)",
-                        "padding": "20px",
-                        "position": "sticky",
-                        "top": "20px",
-                        "boxSizing": "border-box"
-                    },
-                    children=[
-                        html.Div(
-                            style={
-                                "textAlign": "center",
-                                "marginBottom": "16px"
-                            },
-                            children=[
-                                html.Img(
-                                    src="/assets/logos/icprb.jpg",
-                                    style={
-                                        "height": "220px",
-                                        "width": "220px",
-                                        "objectFit": "contain"
-                                    }
-                                )
-                            ]
-                        ),
-
-                        html.Div(
-                            "Dashboard Menu",
-                            style={
-                                "fontWeight": "bold",
-                                "fontSize": "23px",
-                                "marginBottom": "22px",
-                                "textAlign": "center",
-                                "color": "#1f2d3d"
-                            }
-                        ),
-                        dcc.Tabs(
-                            id="dashboard-tab",
-                            value="home",
-                            vertical=True,
-                            parent_style={
-                                "border": "none",
-                                "width": "100%"
-                            },
-                            style={
-                                "height": "auto",
-                                "border": "none",
-                                "width": "100%"
-                            },
-                            children=[
-                                dcc.Tab(
-                                    label="Home",
-                                    value="home",
-                                    style=MENU_TAB_STYLE,
-                                    selected_style=MENU_TAB_SELECTED_STYLE
-                                ),
-                                dcc.Tab(
-                                    label="Historical Streamflow",
-                                    value="streamflow",
-                                    style=MENU_TAB_STYLE,
-                                    selected_style=MENU_TAB_SELECTED_STYLE
-                                ),
-                                dcc.Tab(
-                                    label="Streamflow Forecast",
-                                    value="flow_forecasts",
-                                    style=MENU_TAB_STYLE,
-                                    selected_style=MENU_TAB_SELECTED_STYLE
-                                ),
-                                dcc.Tab(
-                                    label="Precipitation",
-                                    value="precip",
-                                    style=MENU_TAB_STYLE,
-                                    selected_style=MENU_TAB_SELECTED_STYLE
-                                ),
-                                dcc.Tab(
-                                    label="Groundwater",
-                                    value="groundwater",
-                                    style=MENU_TAB_STYLE,
-                                    selected_style=MENU_TAB_SELECTED_STYLE
-                                ),
-                                dcc.Tab(
-                                    label="Drought Monitor",
-                                    value="drought",
-                                    style=MENU_TAB_STYLE,
-                                    selected_style=MENU_TAB_SELECTED_STYLE
-                                ),
-                                dcc.Tab(
-                                    label="Reservoir Storage",
-                                    value="reservoir",
-                                    style=MENU_TAB_STYLE,
-                                    selected_style=MENU_TAB_SELECTED_STYLE
-                                ),
-                                dcc.Tab(
-                                    label="Climate Outlooks",
-                                    value="noaa",
-                                    style=MENU_TAB_STYLE,
-                                    selected_style=MENU_TAB_SELECTED_STYLE
-                                )
-                            ]
-                        )
-                    ]
-                ),
-
-                html.Div(
-                    id="main-content",
-                    style={
-                        "flex": "1",
+                dcc.Tabs(
+                    id="dashboard-tab",
+                    value="home",
+                    vertical=False,
+                    mobile_breakpoint=0,
+                    parent_style={
+                        "border": "none",
+                        "width": "100%",
                         "minWidth": "0"
                     },
-                    children=home_layout()
+                    className="dashboard-tabs",
+                    children=[
+                        dcc.Tab(
+                            label="Home",
+                            value="home",
+                            className="dashboard-menu-tab",
+                            selected_className="dashboard-menu-tab",
+                            style=MENU_TAB_STYLE,
+                            selected_style=MENU_TAB_SELECTED_STYLE
+                        ),
+                        dcc.Tab(
+                            label="Historical Streamflow",
+                            value="streamflow",
+                            className="dashboard-menu-tab",
+                            selected_className="dashboard-menu-tab",
+                            style=MENU_TAB_STYLE,
+                            selected_style=MENU_TAB_SELECTED_STYLE
+                        ),
+                        dcc.Tab(
+                            label="Streamflow Forecast",
+                            value="flow_forecasts",
+                            className="dashboard-menu-tab",
+                            selected_className="dashboard-menu-tab",
+                            style=MENU_TAB_STYLE,
+                            selected_style=MENU_TAB_SELECTED_STYLE
+                        ),
+                        dcc.Tab(
+                            label="Precipitation",
+                            value="precip",
+                            className="dashboard-menu-tab",
+                            selected_className="dashboard-menu-tab",
+                            style=MENU_TAB_STYLE,
+                            selected_style=MENU_TAB_SELECTED_STYLE
+                        ),
+                        dcc.Tab(
+                            label="Groundwater",
+                            value="groundwater",
+                            className="dashboard-menu-tab",
+                            selected_className="dashboard-menu-tab",
+                            style=MENU_TAB_STYLE,
+                            selected_style=MENU_TAB_SELECTED_STYLE
+                        ),
+                        dcc.Tab(
+                            label="Drought Monitor",
+                            value="drought",
+                            className="dashboard-menu-tab",
+                            selected_className="dashboard-menu-tab",
+                            style=MENU_TAB_STYLE,
+                            selected_style=MENU_TAB_SELECTED_STYLE
+                        ),
+                        dcc.Tab(
+                            label="Reservoir Storage",
+                            value="reservoir",
+                            className="dashboard-menu-tab",
+                            selected_className="dashboard-menu-tab",
+                            style=MENU_TAB_STYLE,
+                            selected_style=MENU_TAB_SELECTED_STYLE
+                        ),
+                        dcc.Tab(
+                            label="Climate Outlooks",
+                            value="noaa",
+                            className="dashboard-menu-tab",
+                            selected_className="dashboard-menu-tab",
+                            style=MENU_TAB_STYLE,
+                            selected_style=MENU_TAB_SELECTED_STYLE
+                        )
+                    ]
                 )
             ]
+        ),
+
+        html.Div(
+            id="main-content",
+            style={
+                "width": "100%",
+                "minWidth": "0"
+            },
+            children=home_layout()
         ),
 
         html.Div(
@@ -330,6 +385,53 @@ app.layout = html.Div(
                                 "border": "1px solid lightgray"
                             }
                         )
+                    ]
+                )
+            ]
+        ),
+
+        # Popup for Home content and interactive graphs
+        html.Div(
+            id="content-modal",
+            style={"display": "none"},
+            children=[
+                html.Div(
+                    style={
+                        "backgroundColor": "white",
+                        "borderRadius": "12px",
+                        "padding": "16px",
+                        "width": "100%",
+                        "maxWidth": "1500px",
+                        "maxHeight": "94vh",
+                        "overflowY": "auto",
+                        "margin": "auto",
+                        "boxSizing": "border-box"
+                    },
+                    children=[
+                        html.Div(
+                            style={
+                                "display": "flex",
+                                "justifyContent": "flex-end",
+                                "marginBottom": "10px"
+                            },
+                            children=[
+                                html.Button(
+                                    "× Close",
+                                    id="close-content-modal",
+                                    n_clicks=0,
+                                    style={
+                                        "fontSize": "18px",
+                                        "fontWeight": "bold",
+                                        "backgroundColor": "#f2f2f2",
+                                        "border": "1px solid lightgray",
+                                        "borderRadius": "6px",
+                                        "padding": "6px 10px",
+                                        "cursor": "pointer"
+                                    }
+                                )
+                            ]
+                        ),
+                        html.Div(id="content-modal-body")
                     ]
                 )
             ]

@@ -31,6 +31,8 @@ def drought_monitor_layout():
                 style={
                     "width": "100%",
                     "maxWidth": "1050px",
+                    "height": "auto",
+                    "boxSizing": "border-box",
                     "border": "1px solid lightgray",
                     "cursor": "pointer"
                 }
@@ -86,17 +88,26 @@ def drought_monitor_layout():
             html.Div(
                 style={
                     "display": "grid",
-                    "gridTemplateColumns": "repeat(auto-fit, minmax(520px, 1fr))",
-                    "gap": "22px"
+                    "gridTemplateColumns": "repeat(auto-fit, minmax(min(100%, 520px), 1fr))",
+                    "gap": "12px",
+                    "alignItems": "start",
+                    "justifyItems": "center",
+                    "width": "100%",
+                    "maxWidth": "2200px",
+                    "margin": "0 auto"
                 },
                 children=[
                     html.Div(
                         style={
                             "backgroundColor": "white",
-                            "padding": "18px",
+                            "padding": "12px",
                             "borderRadius": "14px",
                             "boxShadow": "0px 2px 7px rgba(0,0,0,0.18)",
-                            "border": "1px solid #e1e7ef"
+                            "border": "1px solid #e1e7ef",
+                            "width": "100%",
+                            "maxWidth": "1100px",
+                            "minWidth": "0",
+                            "boxSizing": "border-box"
                         },
                         children=[
                             html.H3(
@@ -119,6 +130,8 @@ def drought_monitor_layout():
                                         style={
                                             "width": "100%",
                                             "maxWidth": "1050px",
+                                            "height": "auto",
+                                            "boxSizing": "border-box",
                                             "border": "1px solid lightgray",
                                             "cursor": "pointer"
                                         }
@@ -140,10 +153,14 @@ def drought_monitor_layout():
                     html.Div(
                         style={
                             "backgroundColor": "white",
-                            "padding": "18px",
+                            "padding": "12px",
                             "borderRadius": "14px",
                             "boxShadow": "0px 2px 7px rgba(0,0,0,0.18)",
-                            "border": "1px solid #e1e7ef"
+                            "border": "1px solid #e1e7ef",
+                            "width": "100%",
+                            "maxWidth": "1100px",
+                            "minWidth": "0",
+                            "boxSizing": "border-box"
                         },
                         children=[
                             html.H3(

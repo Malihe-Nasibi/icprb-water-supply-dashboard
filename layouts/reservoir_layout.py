@@ -64,46 +64,31 @@ def reservoir_storage_layout():
 
         return html.Div(
             children=[
-                html.Div(
-                    style={
-                        "backgroundColor": "white",
-                        "padding": "20px",
-                        "borderRadius": "12px",
-                        "boxShadow": "0px 1px 5px rgba(0,0,0,0.18)",
-                        "marginBottom": "22px",
-                        "textAlign": "center"
-                    },
-                    children=[
-                        html.H2(
-                            "Reservoir Storage",
-                            style={
-                                "fontSize": "28px",
-                                "fontWeight": "bold",
-                                "marginTop": "0px",
-                                "marginBottom": "0px"
-                            }
-                        )
-                    ]
-                ),
-
                 reservoir_latest_cards(df),
 
                 html.Div(
+                    className="reservoir-controls",
                     style={
-                        "width": "430px",
-                        "padding": "14px",
+                        "width": "100%",
+                        "maxWidth": "430px",
+                        "minWidth": "0",
+                        "padding": "clamp(6px, 1vw, 10px)",
+                        "boxSizing": "border-box",
                         "backgroundColor": "white",
                         "borderRadius": "12px",
                         "boxShadow": "0px 1px 5px rgba(0,0,0,0.18)",
-                        "marginBottom": "22px"
+                        "margin": "0 auto 12px auto"
                     },
                     children=[
                         html.Label(
                             "Select reservoir/storage variable:",
-                            style=DROPDOWN_TITLE_STYLE
+                            style={
+                                **DROPDOWN_TITLE_STYLE,
+                                "fontSize": "clamp(16px, 1.5vw, 20px)"
+                            }
                         ),
                         dcc.Dropdown(
-                            className=DROPDOWN_CLASS_NAME,
+                            className=f"{DROPDOWN_CLASS_NAME} reservoir-dropdown",
                             id="reservoir-storage-dropdown",
                             options=[
                                 {
@@ -114,7 +99,7 @@ def reservoir_storage_layout():
                             ],
                             value=default_column,
                             clearable=False,
-                            style={"marginTop": "8px"}
+                            style={"width": "100%", "minWidth": "0"}
                         )
                     ]
                 ),

@@ -5,10 +5,11 @@ This file contains the Dash callback functions that update tabs, dropdowns,
 figures, forecast products, and image popups.
 """
 
+from copy import deepcopy
 from datetime import date
 
 import plotly.graph_objects as go
-from dash import Input, Output, ctx, ALL, html
+from dash import Input, Output, State, ctx, ALL, html, dcc
 from dash.exceptions import PreventUpdate
 
 from config import (
@@ -39,6 +40,63 @@ from layouts.reservoir_layout import (
     reservoir_storage_layout,
     reservoir_source_note_children
 )
+
+
+# Enlarged content helpers
+
+def find_layout_component(node, component_id):
+    if isinstance(node, dict):
+        props = node.get("props", {})
+
+        if props.get("id") == component_id:
+            return node
+
+        # Search only component children
+        return find_layout_component(props.get("children"), component_id)
+
+    if isinstance(node, list):
+        for item in node:
+            result = find_layout_component(item, component_id)
+
+            if result is not None:
+                return result
+
+    return None
+
+
+def prepare_modal_content(node):
+    node = deepcopy(node)
+
+    def clean_component(value):
+        if isinstance(value, dict):
+            props = value.get("props")
+
+            if not isinstance(props, dict):
+                return
+            props.pop("id", None)
+            props.pop("n_clicks", None)
+            props.pop("n_clicks_timestamp", None)
+
+            style = props.get("style")
+
+            if isinstance(style, dict):
+                style.pop("cursor", None)
+
+            if value.get("type") in ("Table", "Th", "Td"):
+                props["style"] = {
+                    **props.get("style", {}),
+                    "fontSize": "clamp(16px, 1.5vw, 20px)"
+                }
+
+            clean_component(props.get("children"))
+
+        elif isinstance(value, list):
+            for child in value:
+                clean_component(child)
+
+    clean_component(node)
+
+    return node
 
 
 # Register callbacks
@@ -253,6 +311,118 @@ def register_callbacks(app):
                         f"MARFC Ensemble River Forecast — {station['label']} — {model_label}",
                         "NOAA / Middle Atlantic River Forecast Center"
                     )
+
+        raise PreventUpdate
+
+
+    # Callback to enlarge Home content and interactive graphs
+
+    @app.callback(
+        [
+            Output("content-modal", "style"),
+            Output("content-modal-body", "children")
+        ],
+        [
+            Input(
+                {"type": "enlarge-content", "group": ALL, "index": ALL},
+                "n_clicks"
+            ),
+            Input("close-content-modal", "n_clicks")
+        ],
+        State("main-content", "children"),
+        prevent_initial_call=True
+    )
+    def toggle_content_modal(content_clicks, close_clicks, main_content):
+        trigger = ctx.triggered_id
+
+        if trigger == "close-content-modal":
+            return {"display": "none"}, []
+
+        if not isinstance(trigger, dict):
+            raise PreventUpdate
+
+        if trigger.get("type") != "enlarge-content":
+            raise PreventUpdate
+
+        # Ignore controls inserted without a user click
+        clicked_component = find_layout_component(main_content, trigger)
+
+        if clicked_component is None:
+            raise PreventUpdate
+
+        if not clicked_component.get("props", {}).get("n_clicks"):
+            raise PreventUpdate
+
+        visible_style = {
+            "display": "block",
+            "position": "fixed",
+            "zIndex": "10000",
+            "left": "0",
+            "top": "0",
+            "width": "100%",
+            "height": "100%",
+            "overflowY": "auto",
+            "backgroundColor": "rgba(0,0,0,0.75)",
+            "padding": "3vh 2vw",
+            "boxSizing": "border-box"
+        }
+
+        group = trigger.get("group")
+        index = trigger.get("index")
+
+        if group == "graph":
+            component = find_layout_component(main_content, index)
+
+            if component is None:
+                raise PreventUpdate
+
+            figure_data = component.get("props", {}).get("figure")
+
+            if not figure_data:
+                raise PreventUpdate
+
+            figure = go.Figure(figure_data)
+            figure.layout.width = None
+            figure.layout.height = None
+            figure.update_layout(autosize=True)
+
+            return visible_style, dcc.Graph(
+                figure=figure,
+                responsive=True,
+                config={"displaylogo": False},
+                style={
+                    "width": "100%",
+                    "height": "78vh",
+                    "minHeight": "400px"
+                }
+            )
+
+        if group == "home-image":
+            image_src = clicked_component.get("props", {}).get("src")
+
+            if not image_src:
+                raise PreventUpdate
+
+            return visible_style, html.Img(
+                src=image_src,
+                style={
+                    "display": "block",
+                    "width": "100%",
+                    "height": "auto",
+                    "margin": "0 auto"
+                }
+            )
+
+        if group == "home-table":
+            return visible_style, html.Div(
+                children=prepare_modal_content(
+                    clicked_component.get("props", {}).get("children")
+                ),
+                style={
+                    "width": "100%",
+                    "overflowX": "auto"
+                }
+            )
 
         raise PreventUpdate
 
