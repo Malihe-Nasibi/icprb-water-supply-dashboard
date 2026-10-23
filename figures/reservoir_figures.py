@@ -41,9 +41,8 @@ def reservoir_latest_cards(df):
                     "backgroundColor": "white",
                     "borderRadius": "12px",
                     "boxShadow": "0px 1px 5px rgba(0,0,0,0.15)",
-                    "padding": "12px",
+                    "padding": "10px",
                     "border": "1px solid #e1e7ef",
-                    "minHeight": "105px",
                     "minWidth": "0",
                     "boxSizing": "border-box",
                     "overflowWrap": "break-word"
@@ -53,15 +52,16 @@ def reservoir_latest_cards(df):
                         label,
                         style={
                             "fontWeight": "bold",
-                            "fontSize": "clamp(16px, 1.3vw, 19px)",
+                            "fontSize": "clamp(15px, 1.2vw, 17px)",
+                            "lineHeight": "1.25",
                             "color": "#1f2d3d",
-                            "marginBottom": "8px"
+                            "marginBottom": "6px"
                         }
                     ),
                     html.Div(
                         latest_text,
                         style={
-                            "fontSize": "clamp(20px, 1.7vw, 24px)",
+                            "fontSize": "clamp(19px, 1.5vw, 22px)",
                             "fontWeight": "bold",
                             "color": "#0f3b63"
                         }
@@ -69,7 +69,7 @@ def reservoir_latest_cards(df):
                     html.Div(
                         date_text,
                         style={
-                            "fontSize": "clamp(14px, 1.2vw, 17px)",
+                            "fontSize": "clamp(13px, 1.1vw, 15px)",
                             "fontWeight": "bold",
                             "color": "gray",
                             "marginTop": "4px"
@@ -79,17 +79,32 @@ def reservoir_latest_cards(df):
             )
         )
 
+    card_groups = [
+        html.Div(
+            style={
+                "display": "grid",
+                "gridTemplateColumns": "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
+                "gap": "12px",
+                "flex": "1 1 564px",
+                "maxWidth": "684px",
+                "minWidth": "0"
+            },
+            children=cards[index:index + 3]
+        )
+        for index in range(0, len(cards), 3)
+    ]
+
     return html.Div(
         style={
-            "display": "grid",
-            "gridAutoFlow": "column",
-            "gridAutoColumns": "minmax(200px, 1fr)",
+            "display": "flex",
+            "flexWrap": "wrap",
+            "justifyContent": "center",
+            "alignItems": "stretch",
             "gap": "12px",
-            "overflowX": "auto",
-            "paddingBottom": "6px",
+            "width": "100%",
             "marginBottom": "12px"
         },
-        children=cards
+        children=card_groups
     )
 
 

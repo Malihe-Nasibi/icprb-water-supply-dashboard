@@ -31,12 +31,12 @@ LAYOUT_CSS = """
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
-    margin-bottom: 14px;
+    gap: 12px;
+    margin-bottom: 10px;
 }
 
 .dashboard-logo {
-    width: clamp(70px, 10vw, 110px);
+    width: clamp(60px, 7vw, 85px);
     height: auto;
     flex-shrink: 0;
     object-fit: contain;
@@ -48,7 +48,7 @@ LAYOUT_CSS = """
 }
 
 .dashboard-organization {
-    font-size: clamp(20px, 2.5vw, 34px);
+    font-size: clamp(18px, 2vw, 26px);
     font-weight: bold;
     line-height: 1.2;
     color: #1f2d3d;
@@ -57,7 +57,7 @@ LAYOUT_CSS = """
 }
 
 .dashboard-title {
-    font-size: clamp(22px, 2.5vw, 34px);
+    font-size: clamp(20px, 2.2vw, 28px);
     font-weight: bold;
     line-height: 1.2;
     margin: 0;
@@ -69,14 +69,14 @@ LAYOUT_CSS = """
     background-color: white;
     border-radius: 12px;
     box-shadow: 0px 2px 7px rgba(0,0,0,0.16);
-    padding: 10px;
-    margin-bottom: 14px;
+    padding: 8px;
+    margin-bottom: 12px;
 }
 
 .dashboard-tabs {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
     gap: 8px;
     width: 100%;
     min-width: 0;
@@ -84,11 +84,21 @@ LAYOUT_CSS = """
 }
 
 .dashboard-tabs .dashboard-menu-tab {
-    flex: 1 1 160px !important;
-    width: auto !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
     min-width: 0 !important;
+    min-height: 44px;
+    height: 100%;
     white-space: normal;
     overflow-wrap: break-word;
+}
+
+@media (min-width: 1550px) {
+    .dashboard-tabs {
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 600px) {
@@ -98,23 +108,18 @@ LAYOUT_CSS = """
 
     .dashboard-header {
         flex-direction: column;
-        gap: 8px;
-        margin-bottom: 12px;
+        gap: 6px;
+        margin-bottom: 10px;
     }
 
     .dashboard-navigation {
-        padding: 8px;
+        padding: 6px;
         margin-bottom: 12px;
     }
 
     .dashboard-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 6px;
-    }
-
-    .dashboard-tabs .dashboard-menu-tab {
-        flex-basis: 130px !important;
-        font-size: 15px !important;
-        padding: 10px 8px !important;
     }
 }
 """
@@ -151,12 +156,12 @@ app.index_string = f"""
 
 MENU_TAB_STYLE = {
     "boxSizing": "border-box",
-    "padding": "12px 14px",
+    "padding": "clamp(8px, 0.9vw, 10px) clamp(8px, 1vw, 12px)",
     "margin": "0",
     "borderRadius": "10px",
     "backgroundColor": "#e7eef6",
     "color": "#1f2d3d",
-    "fontSize": "17px",
+    "fontSize": "clamp(14px, 1.4vw, 17px)",
     "fontWeight": "bold",
     "border": "1px solid #c7d4e3",
     "boxShadow": "0px 3px 7px rgba(0,0,0,0.16)",
@@ -167,12 +172,12 @@ MENU_TAB_STYLE = {
 
 MENU_TAB_SELECTED_STYLE = {
     "boxSizing": "border-box",
-    "padding": "12px 14px",
+    "padding": "clamp(8px, 0.9vw, 10px) clamp(8px, 1vw, 12px)",
     "margin": "0",
     "borderRadius": "10px",
     "backgroundColor": "#1f4e79",
     "color": "white",
-    "fontSize": "17px",
+    "fontSize": "clamp(14px, 1.4vw, 17px)",
     "fontWeight": "900",
     "border": "1px solid #153650",
     "boxShadow": (
